@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Registro de proveedores{% endblock %}
+{% block contenido %}
+<section class="tarjeta tarjeta--formulario"><h1>Registro de proveedores</h1><p>Registre su empresa y elija una contraseña. Si ya tiene cuenta o su NIT está registrado, comuníquese con la clínica.</p>
+<form method="post" novalidate>{% csrf_token %}
+  {{ formulario.non_field_errors }}
+  {% for campo in formulario %}{% if campo.name == "sitio_web" %}<div hidden aria-hidden="true">{{ campo }}</div>{% else %}{% include "configuracion/_campo.html" %}{% endif %}{% endfor %}
+  <div class="acciones-formulario"><button class="boton" type="submit">Registrarse</button><a href="{% url 'cuentas:ingresar' %}">Ya tengo cuenta</a></div>
+</form></section>
+{% endblock %}

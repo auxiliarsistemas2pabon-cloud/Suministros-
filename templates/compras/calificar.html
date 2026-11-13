@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}Calificar lista {{ lista.pk }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Calificación de elegibles · lista {{ lista.pk }}</h1>
+<p><a href="{% url 'compras:lista_detalle' lista.pk %}">{{ lista.necesidad.objeto }}</a> · {{ lista.fecha|date:"d/m/Y" }} · {{ lista.estado }}</p>
+{% if configuracion %}
+<section class="tarjeta"><h2>Asignar criterios y reglas de cálculo</h2>
+<p>Esta lista todavía no tiene versión. <a href="{% url 'compras:versiones_criterios' %}">Revise y publique los criterios</a> con vigencia que cubra su fecha. Al asignarlos se conserva también la escala y el método de cálculo actuales.</p>
+{{ configuracion.non_field_errors }}
+{% if lista.estado == "borrador" %}<form method="post" action="{% url 'compras:lista_configurar' lista.pk %}" novalidate>{% csrf_token %}
+  {% for campo in configuracion %}{% include "configuracion/_campo.html" %}{% endfor %}
+  <button type="submit" class="boton">Asignar criterios a esta lista</button>
+</form>{% else %}<p>La lista está conservada y no admite asignación de criterios.</p>{% endif %}
+</section>
+{% else %}
+<section class="tarjeta"><h2>Reglas conservadas en esta lista</h2>
+<p><a href="{% url 'compras:version_criterios_detalle' lista.version_criterios_id %}">Versión {{ lista.version_criterios.numero }}</a>. Método: {{ matriz.reglas.metodo }}. Escala: {{ matriz.reglas.escala|join:" / " }}.</p>
+{% if matriz.reglas.pendiente %}<div class="mensaje mensaje--warning" role="status">D-07 pendiente de aprobación de la clínica. Estos puntajes son provisionales.</div>{% endif %}
+{% if matriz.reglas.metodo == "directo" %}<p>Subtotal = cumplimiento × (peso % / 100). El máximo total es el mayor valor de la escala.</p>{% else %}<p>Subtotal = cumplimiento / máximo de la escala × peso %. El máximo total es 100 puntos.</p>{% endif %}
+<p>Cada subtotal se redondea a cuatro decimales; el total suma esos subtotales. Una respuesta pendiente deja el total sin completar. Cambiar parámetros o publicar otra versión afecta únicamente a listas que reciban reglas después.</p>
+</section>
+<section class="tarjeta"><h2>Matriz de calificación</h2>
+<p>Los subtotales y totales corresponden a los últimos valores guardados. Guarde para recalcular.</p>
+<form method="post" novalidate>{% csrf_token %}{{ formulario.revision }}{{ formulario.revision.errors }}{{ formulario.non_field_errors }}
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Participante</th>{% for criterio in matriz.criterios %}<th>{{ criterio.nombre }} · {{ criterio.peso }} %</th>{% endfor %}<th>Total</th></tr></thead><tbody>
+{% for fila in matriz.filas %}<tr><th scope="row">{{ fila.participante.razon_social }}<br>NIT {{ fila.participante.nit }}</th>
+{% for celda in fila.celdas %}<td>
+  {% if lista.estado == "borrador" %}
+  <div class="campo">{{ celda.campo_cumplimiento.label_tag }}{{ celda.campo_cumplimiento.errors }}{{ celda.campo_cumplimiento }}</div>
+  <div class="campo">{{ celda.campo_observacion.label_tag }}{{ celda.campo_observacion.errors }}{{ celda.campo_observacion }}</div>
+  {% else %}<p>Cumplimiento: {{ celda.cumplimiento|default_if_none:"Pendiente" }}</p><p>{{ celda.observacion|linebreaksbr }}</p>{% endif %}
+  <p>Subtotal: {% if celda.subtotal != None %}{{ celda.subtotal|floatformat:4 }}{% else %}Pendiente{% endif %}</p>
+</td>{% endfor %}
+<td>{% if fila.completo %}{{ fila.total|floatformat:4 }} / {{ fila.maximo }}{% else %}Pendiente · parcial {{ fila.parcial|floatformat:4 }}{% endif %}</td></tr>
+{% empty %}<tr><td>Agregue participantes desde el detalle de la lista.</td></tr>{% endfor %}
+</tbody></table></div>
+{% if lista.estado == "borrador" and matriz.filas %}
+{% include "configuracion/_campo.html" with campo=formulario.motivo %}
+<button type="submit" class="boton">Guardar calificaciones y recalcular</button>
+{% endif %}
+</form></section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Tipos de origen de necesidades{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Tipos de origen de necesidades</h1>
+<p>Configure los orígenes que utiliza la clínica para necesidades sin proyección. Puede desactivar un tipo conservando su historial.</p>
+<section class="tarjeta"><h2>Catálogo</h2><ul>
+  {% for tipo in tipos %}<li><a href="{% url 'compras:origen_editar' tipo.pk %}">{{ tipo.nombre }}</a> · {% if tipo.activo %}Activo{% else %}Inactivo{% endif %}</li>{% empty %}<li>No hay tipos configurados. También puede describir el origen en texto libre.</li>{% endfor %}
+</ul></section>
+<section class="tarjeta"><h2>{% if formulario.instance.pk %}Editar tipo{% else %}Crear tipo{% endif %}</h2>
+  <form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+    {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <button type="submit" class="boton">Guardar tipo de origen</button>
+    {% if formulario.instance.pk %}<a href="{% url 'compras:origenes' %}">Volver al catálogo</a>{% endif %}
+  </form>
+</section>
+{% endblock %}

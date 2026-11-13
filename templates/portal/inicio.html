@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block titulo %}Portal de proveedores{% endblock %}
+
+{% block contenido %}
+<h1>Portal de proveedores</h1>
+<section class="tarjeta">
+  <h2>Su ficha de proveedor</h2>
+  <p>Consulte sus datos. Si necesita corregirlos, comuníquese con la clínica.</p>
+  <dl class="ficha">
+    <dt>Razón social</dt><dd>{{ proveedor.razon_social }}</dd>
+    <dt>NIT</dt><dd>{{ proveedor.nit_formateado }}</dd>
+    <dt>Tipo de persona</dt><dd>{{ proveedor.get_tipo_persona_display }}</dd>
+    <dt>Estado</dt><dd>{{ proveedor.get_estado_display }}</dd>
+    <dt>Categoría</dt><dd>{{ proveedor.categoria|default_if_none:"Sin asignar" }}</dd>
+    <dt>Contacto</dt><dd>{{ proveedor.contacto_nombre }}</dd>
+    <dt>Correo</dt><dd>{{ proveedor.contacto_correo }}</dd>
+    <dt>Teléfono</dt><dd>{{ proveedor.contacto_telefono }}</dd>
+    <dt>Dirección</dt><dd>{{ proveedor.direccion }}</dd>
+  </dl>
+</section>
+<section class="tarjeta">
+  <div class="encabezado-seccion"><h2>Sus envíos</h2>{% if proveedor.activo %}<a class="boton" href="{% url 'portal:envio_nuevo' %}">Enviar un documento PDF</a>{% endif %}</div>
+  {% if not proveedor.activo %}<p>Su ficha está inactiva. Puede consultar su historial; comuníquese con la clínica para presentar nuevos documentos.</p>{% endif %}
+  <p>Los documentos enviados quedan pendientes de revisión hasta que la clínica los acepte o descarte.</p>
+  <div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Documento</th><th>Enviado</th><th>Expedición</th><th>Vencimiento</th><th>Estado</th><th>Observación</th><th>Archivo</th></tr></thead><tbody>
+  {% for envio in pagina %}<tr><td>{{ envio.tipo.nombre }}</td><td>{{ envio.fecha_envio|date:"d/m/Y H:i" }}</td><td>{{ envio.fecha_expedicion|date:"d/m/Y" }}</td><td>{{ envio.fecha_vencimiento|date:"d/m/Y"|default:"—" }}</td><td>{{ envio.get_estado_display }}</td><td>{{ envio.motivo|default:"—" }}</td><td>{% if envio.archivo %}<a href="{% url 'portal:envio_descargar' envio.pk %}">Descargar {{ envio.nombre_archivo }}</a>{% else %}Sin archivo disponible{% endif %}</td></tr>{% empty %}<tr><td colspan="7">Usted todavía no ha enviado documentos.</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% include "configuracion/_paginacion.html" %}
+</section>
+<section class="tarjeta"><h2>Documentos de su ficha</h2>
+  <div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Tipo</th><th>Expedición</th><th>Vencimiento</th><th>Vigencia</th><th>Documento</th></tr></thead><tbody>
+  {% for documento in documentos %}<tr><td>{{ documento.tipo.nombre }}{% if not documento.es_actual %} (histórico){% endif %}</td><td>{{ documento.fecha_expedicion|date:"d/m/Y" }}</td><td>{{ documento.fecha_vencimiento|date:"d/m/Y"|default:"—" }}</td><td>{% include "proveedores/_vigencia.html" %}</td><td>{% if documento.tiene_pdf %}<a href="{% url 'portal:documento_descargar' documento.pk %}">Descargar PDF</a>{% else %}<a href="{{ documento.enlace }}" rel="noreferrer">Consultar documento</a>{% endif %}</td></tr>{% empty %}<tr><td colspan="5">Todavía no hay documentos incorporados a su ficha.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

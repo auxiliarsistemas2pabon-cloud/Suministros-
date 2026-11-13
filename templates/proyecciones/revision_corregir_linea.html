@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block titulo %}Corregir línea{% endblock %}
+
+{% block contenido %}
+<section class="tarjeta tarjeta--formulario">
+  <h1>Corregir línea</h1>
+  <p>{{ proyeccion.area.nombre }} · periodo {{ proyeccion.periodo.anio }} · <strong>{{ linea.producto_servicio }}</strong></p>
+  <p class="texto-suave">Cambie los campos necesarios. La justificación es obligatoria y queda en la bitácora con su nombre, el valor anterior y el nuevo de cada campo.</p>
+  <p class="texto-suave">Los campos marcados con <span class="obligatorio">*</span> son obligatorios.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if formulario.non_field_errors %}<div class="mensaje mensaje--error" role="alert">{{ formulario.non_field_errors|join:" " }}</div>{% endif %}
+    {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <div class="acciones-formulario">
+      <button type="submit" class="boton">Guardar corrección</button>
+      <a class="boton boton--secundario" href="{{ volver }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+<datalist id="productos-sugeridos">{% for producto in productos_sugeridos %}<option value="{{ producto.nombre }}">{% endfor %}</datalist>
+{% endblock %}

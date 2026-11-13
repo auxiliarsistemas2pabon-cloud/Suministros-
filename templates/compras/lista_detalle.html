@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}Lista de elegibles {{ lista.pk }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Lista de elegibles {{ lista.pk }} · FR-GDS-20</h1>
+<p><a href="{% url 'compras:necesidad_detalle' lista.necesidad_id %}">{{ lista.necesidad.objeto }}</a> · {{ lista.necesidad.area }} · {{ lista.fecha|date:"d/m/Y" }} · {{ lista.estado }}</p>
+<p>Creada por {{ lista.creada_por }} · {{ lista.estado_flujo }}.</p>
+{% if lista.fecha_cierre %}<p>Cerrada por {{ lista.cerrada_por }} el {{ lista.fecha_cierre|date:"d/m/Y H:i" }}. Resultados y documentos conservados.</p>{% elif lista.estado == "cerrada" %}<p class="mensaje mensaje--warning">Cierre anterior sin foto completa. Reabra y revise la lista antes de iniciar una cotización.</p>{% endif %}
+{% if lista.fecha_reapertura %}<p>Última reapertura: {{ lista.reabierta_por }} · {{ lista.fecha_reapertura|date:"d/m/Y H:i" }}.</p>{% endif %}
+{% if lista.estado == "anulada" %}<p>Anulada por {{ lista.anulada_por|default:"Sin registro anterior" }} · {{ lista.fecha_anulacion|date:"d/m/Y H:i" }}. Motivo: {{ lista.motivo_anulacion|default:"Sin motivo histórico disponible" }}.</p>{% endif %}
+<p><a class="boton" href="{% url 'compras:lista_calificar' lista.pk %}">Calificaciones y puntajes</a></p>
+<p><a class="boton boton--secundario" href="{% url 'compras:lista_documental' lista.pk %}">Evaluación FR14 y estado documental</a></p>
+<p><a class="boton" href="{% url 'compras:lista_decision' lista.pk %}">Puestos y decisión</a> <a class="boton boton--secundario" href="{% url 'compras:lista_exportar' lista.pk %}">Exportar a Excel</a></p>
+{% if lista.cotizaciones.exists %}<section class="tarjeta"><h2>Cotizaciones asociadas</h2><ul>{% for cotizacion in lista.cotizaciones.all %}<li><a href="{% url 'compras:cotizacion_detalle' cotizacion.pk %}">{{ cotizacion.consecutivo }}</a> · {{ cotizacion.get_estado_display }}</li>{% endfor %}</ul></section>{% endif %}
+<section class="tarjeta"><h2>Participantes</h2>
+  <div class="tabla-contenedor"><table class="tabla"><thead><tr><th>NIT registrado</th><th>Razón social registrada</th><th>Acciones</th></tr></thead><tbody>
+  {% for participante in participantes %}
+    <tr><td>{{ participante.nit }}</td><td><a href="{% url 'proveedores:detalle' participante.proveedor_id %}">{{ participante.razon_social }}</a></td><td>
+    {% if lista.estado == "borrador" %}
+      <form method="post" action="{% url 'compras:participante_quitar' lista.pk participante.pk %}">
+        {% csrf_token %}<label for="motivo_retiro_{{ participante.pk }}">Motivo del retiro</label>
+        <input id="motivo_retiro_{{ participante.pk }}" type="text" name="motivo" required maxlength="1000">
+        <button type="submit" class="boton boton--secundario">Retirar participante</button>
+      </form>
+    {% else %}Lista sin edición{% endif %}
+    </td></tr>
+  {% empty %}<tr><td colspan="3">Sin participantes activos.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% if lista.estado == "borrador" %}
+<section class="tarjeta"><h2>Agregar participante</h2>
+  <form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+    {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <button type="submit" class="boton">Agregar proveedor</button>
+  </form>
+</section>{% else %}{{ formulario.non_field_errors }}{% endif %}
+<section class="tarjeta"><h2>Estado de la lista</h2>
+{% if lista.estado == "borrador" %}
+<p>Cerrar comprueba calificaciones, decisión y documentos actuales, y conserva una copia completa para consulta. No crea cotizaciones ni órdenes.</p>
+<form method="post" action="{% url 'compras:lista_cerrar' lista.pk %}" novalidate>{% csrf_token %}
+{% for campo in cierre_form %}{% include "configuracion/_campo.html" %}{% endfor %}
+<button class="boton" type="submit">Cerrar lista</button>
+</form>
+{% elif lista.estado == "cerrada" %}
+<p><a class="boton" href="{% url 'compras:cotizacion_iniciar' lista.pk %}">Iniciar cotización</a></p>
+<p>Puede reabrir mientras no tenga una cotización asociada. Los cierres anteriores se conservan en el historial.</p>
+<form method="post" action="{% url 'compras:lista_reabrir' lista.pk %}" novalidate>{% csrf_token %}
+{% for campo in reapertura_form %}{% include "configuracion/_campo.html" %}{% endfor %}
+<button class="boton boton--secundario" type="submit">Reabrir lista</button>
+</form>
+{% endif %}
+{% if lista.estado != "anulada" %}
+<h3>Anular lista</h3><p>La anulación conserva los datos. No se permite si hay cotización asociada.</p>
+<form method="post" action="{% url 'compras:lista_anular' lista.pk %}" novalidate>{% csrf_token %}
+{% for campo in anulacion_form %}{% include "configuracion/_campo.html" %}{% endfor %}
+<button class="boton boton--secundario" type="submit">Anular lista</button>
+</form>{% endif %}
+</section>
+<section class="tarjeta"><h2>Historial de cierres</h2><ul>
+{% for cierre in lista.cierres.all %}<li><a href="{% url 'compras:lista_cierre_detalle' lista.pk cierre.pk %}">{{ cierre.fecha|date:"d/m/Y H:i" }}</a> · {{ cierre.actor }} · {{ cierre.motivo }}</li>{% empty %}<li>Sin cierres archivados.</li>{% endfor %}
+</ul></section>
+{% endblock %}

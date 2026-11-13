@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}Importar proyección desde Excel{% endblock %}
+{% block contenido %}
+<p><a href="{{ volver }}">« Volver a la proyección</a></p>
+<section class="tarjeta">
+  <h1>Importar desde Excel</h1>
+  <p>{{ proyeccion.area.nombre }} · Periodo {{ proyeccion.periodo.anio }} · {{ proyeccion.get_estado_display }}</p>
+  <p>Descargue la <a href="{% url 'proyecciones:plantilla_excel' %}">plantilla Excel</a>, diligénciela y cargue el archivo para revisarlo antes de guardar.</p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ formulario.non_field_errors }}
+    {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <button class="boton" type="submit" name="accion" value="previsualizar">Ver vista previa</button>
+  </form>
+</section>
+{% if previa %}
+<section class="tarjeta">
+  <h2>Vista previa</h2>
+  <p>{{ filas|length }} filas válidas y {{ previa.errores|length }} filas con errores. Todavía no se han guardado líneas. Esta vista previa vence en 30 minutos.</p>
+  {% if previa.errores %}
+  <div class="mensaje mensaje--warning" role="status">Revise los errores. Al confirmar se importarán únicamente las filas válidas. También puede corregir el archivo y cargarlo nuevamente.</div>
+  <table class="tabla"><thead><tr><th>Fila de Excel</th><th>Error</th></tr></thead><tbody>
+  {% for error in previa.errores %}<tr><td>{{ error.fila }}</td><td>{{ error.error }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% endif %}
+  {% if filas %}
+  <div class="tabla-contenedor"><table class="tabla">
+    <thead><tr><th>Fila</th><th>Producto o servicio</th><th>Dependencia</th><th>Unidad</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dic</th><th>Precio</th><th>Total anual</th><th>Costo anual</th></tr></thead>
+    <tbody>{% for fila in filas %}<tr><td>{{ fila.fila }}</td><td>{{ fila.datos.producto_servicio }}</td><td>{{ fila.datos.dependencia }}</td><td>{{ fila.unidad }}</td>{% for cantidad in fila.cantidades %}<td>{{ cantidad }}</td>{% endfor %}<td>{{ fila.datos.precio_estimado }}</td><td>{{ fila.total }}</td><td>{{ fila.costo|floatformat:"2g" }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <form method="post">
+    {% csrf_token %}
+    {{ confirmar.non_field_errors }}
+    {{ confirmar.token }}
+    {% for campo in confirmar.visible_fields %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <p>Si selecciona reemplazar, se quitarán todas las líneas existentes y se guardarán solo las filas válidas de esta carga. El historial se conserva en la bitácora.</p>
+    <button class="boton" type="submit" name="accion" value="confirmar">Confirmar importación de filas válidas</button>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

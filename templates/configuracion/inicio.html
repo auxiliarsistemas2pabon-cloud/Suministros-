@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block titulo %}Configuración{% endblock %}
+
+{% block contenido %}
+<h1>Configuración</h1>
+{% include "configuracion/_submenu.html" %}
+<p class="texto-suave">Administre las áreas, los catálogos de la proyección y los usuarios. Ningún registro se borra: se desactiva, y cada cambio queda en la bitácora con su motivo.</p>
+
+{% if coordinadores_activos == 0 %}
+<div class="mensaje mensaje--warning" role="status">Todavía no hay coordinadores activos. <a href="{% url 'configuracion:usuario_nuevo' %}?rol=coordinador">Crear un usuario coordinador</a>.</div>
+{% elif areas_sin_coordinador %}
+<div class="mensaje mensaje--warning" role="status">Hay {{ areas_sin_coordinador }} área{{ areas_sin_coordinador|pluralize }} activa{{ areas_sin_coordinador|pluralize }} sin coordinador. Asígneles uno desde <a href="{% url 'configuracion:areas' %}">Áreas</a>.</div>
+{% endif %}
+
+<ul class="accesos">
+  <li><a class="acceso__enlace" href="{% url 'configuracion:catalogos_proveedores' 'categorias' %}"><span class="acceso__nombre">Catálogos de proveedores</span><span class="acceso__descripcion">Administre categorías, tipos de documento, requisitos FR-GDS-14 y pesos por categoría.</span></a></li>
+  <li>
+    <a class="acceso__enlace" href="{% url 'configuracion:areas' %}">
+      <span class="acceso__nombre">Áreas</span>
+      <span class="acceso__descripcion">{{ areas_activas }} activa{{ areas_activas|pluralize }} de {{ areas_total }}. Cree, edite, active o desactive áreas y asigne coordinadores.</span>
+    </a>
+  </li>
+  <li>
+    <a class="acceso__enlace" href="{% url 'configuracion:unidades' %}">
+      <span class="acceso__nombre">Unidades de medida</span>
+      <span class="acceso__descripcion">{{ unidades_activas }} activa{{ unidades_activas|pluralize }}. Unidades disponibles para la proyección.</span>
+    </a>
+  </li>
+  <li>
+    <a class="acceso__enlace" href="{% url 'configuracion:productos' %}">
+      <span class="acceso__nombre">Productos sugeridos</span>
+      <span class="acceso__descripcion">{{ productos_activos }} activo{{ productos_activos|pluralize }}. Productos que se sugieren al proyectar.</span>
+    </a>
+  </li>
+  <li>
+    <a class="acceso__enlace" href="{% url 'configuracion:usuarios' %}">
+      <span class="acceso__nombre">Usuarios</span>
+      <span class="acceso__descripcion">{{ usuarios_activos }} activo{{ usuarios_activos|pluralize }}. Cree usuarios, edítelos, desactívelos o restablezca su clave.</span>
+    </a>
+  </li>
+  <li>
+    <a class="acceso__enlace" href="{% url 'configuracion:parametros' %}">
+      <span class="acceso__nombre">Parámetros</span>
+      <span class="acceso__descripcion">Reglas pendientes de decisión de la clínica (por ejemplo D-01), con su valor por defecto documentado.</span>
+    </a>
+  </li>
+</ul>
+{% endblock %}

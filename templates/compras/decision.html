@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Puestos y decisión · lista {{ lista.pk }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Puestos y decisión · lista {{ lista.pk }}</h1>
+<p><a href="{% url 'compras:lista_detalle' lista.pk %}">{{ lista.necesidad.objeto }}</a> · {{ lista.estado }}</p>
+<div class="acciones-formulario"><a href="{% url 'compras:lista_calificar' lista.pk %}">Ver calificaciones</a><a class="boton boton--secundario" href="{% url 'compras:lista_exportar' lista.pk %}">Exportar lista a Excel</a></div>
+<p><a href="{% url 'compras:lista_documental' lista.pk %}">Revisar evaluación FR14 y estado documental de los participantes</a></p>
+<div class="mensaje mensaje--warning" role="status">D-08: reglas provisionales de empate, proveedor único y excepciones pendientes de aprobación de la clínica.{% if resultado.reglas.pendiente %} El cálculo D-07 también está pendiente.{% endif %}</div>
+<p>Los puestos se calculan por puntaje descendente. Los empates comparten puesto, salvo desempate manual justificado. Una cantidad positiva indica elección del participante.</p>
+{% if not resultado.completa %}<p class="mensaje mensaje--warning">Complete las calificaciones de todos los participantes antes de registrar la decisión. Los puestos de las respuestas completas son provisionales.</p>{% endif %}
+<section class="tarjeta"><h2>Cantidad de la necesidad</h2>
+<p>Base: {{ resultado.base.cantidad|default_if_none:"Pendiente" }} {{ resultado.base.unidad }} · {{ resultado.base.origen }}.</p>
+<p>Total autorizado guardado: {{ decision.total_autorizado }} {{ resultado.base.unidad }}.</p>
+{% if lista.estado == "borrador" %}<a href="{% url 'compras:necesidad_cantidad' lista.necesidad_id %}">Definir o revisar cantidad base y unidad</a>{% endif %}
+</section>
+<section class="tarjeta"><h2>Decisión</h2>
+{% if decision.vigente %}<p>Decisión registrada y vigente. Responsable: {{ decision.registro.registrada_por }} · {{ decision.registro.fecha|date:"d/m/Y H:i" }}.</p>{% else %}<p class="mensaje mensaje--warning">Decisión pendiente de registrar o revisar.</p>{% endif %}
+<form method="post" novalidate>{% csrf_token %}{{ formulario.revision }}{{ formulario.revision.errors }}{{ formulario.non_field_errors }}
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Participante</th><th>Puntaje</th><th>Puesto</th><th>Cantidad autorizada</th><th>Observación y justificación</th></tr></thead><tbody>
+{% for fila in resultado.filas %}<tr><th scope="row">{{ fila.participante.razon_social }}<br>NIT {{ fila.participante.nit }}</th><td>{{ fila.total|floatformat:4|default:"Pendiente" }}</td>
+<td>{{ fila.puesto|default_if_none:"Pendiente" }}{% if fila.empate %}<br>Empate por puntaje{% endif %}{% if fila.desempate %}<br>Desempate manual aplicado (puesto calculado: {{ fila.puesto_calculado }}){% endif %}</td>
+{% if lista.estado == "borrador" %}<td>{{ fila.campo_cantidad.label_tag }}{{ fila.campo_cantidad.errors }}{{ fila.campo_cantidad }} {{ resultado.base.unidad }}</td>
+<td>{{ fila.campo_observacion.label_tag }}{{ fila.campo_observacion.errors }}{{ fila.campo_observacion }}{{ fila.campo_justificacion.label_tag }}{{ fila.campo_justificacion.errors }}{{ fila.campo_justificacion }}</td>
+{% else %}<td>{{ fila.participante.cantidad_autorizada }} {{ resultado.base.unidad }}</td><td>{{ fila.participante.observacion|linebreaksbr }}<br>{{ fila.participante.justificacion_eleccion|linebreaksbr }}</td>{% endif %}</tr>
+{% empty %}<tr><td colspan="5">Agregue y califique participantes desde el detalle de la lista.</td></tr>{% endfor %}
+</tbody></table></div>
+{% if lista.estado == "borrador" and resultado.filas %}
+{% include "configuracion/_campo.html" with campo=formulario.justificacion_unico %}
+{% include "configuracion/_campo.html" with campo=formulario.justificacion_cantidad %}
+{% include "configuracion/_campo.html" with campo=formulario.motivo %}
+<p>Justifique proveedor único, elección fuera del primer puesto y exceso de la cantidad base cuando correspondan. Registrar la decisión conserva quién y cuándo. Puede cerrar desde el detalle de la lista, después de revisar los documentos.</p>
+<button type="submit" class="boton">Registrar decisión y cantidades</button>
+{% elif decision.registro %}<p>Proveedor único: {{ decision.registro.justificacion_unico|default:"No aplica" }}.</p><p>Exceso de cantidad: {{ decision.registro.justificacion_cantidad|default:"No aplica" }}.</p>{% endif %}
+</form></section>
+{% for grupo in resultado.empates %}
+<section class="tarjeta"><h2>Empate a {{ grupo.total|floatformat:4 }} puntos</h2>
+<ul>{% for fila in grupo.filas %}<li>{{ fila.participante.razon_social }} · NIT {{ fila.participante.nit }}</li>{% endfor %}</ul>
+{% if grupo.desempate %}<p>Justificación: {{ grupo.desempate.justificacion }}. Registró {{ grupo.desempate.registrado_por }} el {{ grupo.desempate.fecha|date:"d/m/Y H:i" }}.</p>
+{% if lista.estado == "borrador" %}<form method="post" action="{% url 'compras:lista_restablecer_empate' lista.pk grupo.desempate.pk %}">{% csrf_token %}<label for="restablecer_{{ grupo.desempate.pk }}">Motivo para restablecer el empate</label><input id="restablecer_{{ grupo.desempate.pk }}" name="motivo" required><button type="submit" class="boton boton--secundario">Restablecer puesto compartido</button></form>{% endif %}
+{% endif %}
+{% if lista.estado == "borrador" %}<h3>Registrar orden manual</h3><form method="post" action="{% url 'compras:lista_desempatar' lista.pk %}" novalidate>{% csrf_token %}
+{{ grupo.formulario.total }}{% for campo in grupo.formulario.visible_fields %}<div class="campo">{{ campo.label_tag }}{{ campo.errors }}{{ campo }}</div>{% endfor %}
+<button type="submit" class="boton boton--secundario">Guardar desempate justificado</button></form>{% endif %}
+</section>{% endfor %}
+{% endblock %}

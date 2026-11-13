@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block titulo %}Proyección {{ proyeccion.area.nombre }} {{ proyeccion.periodo.anio }}{% endblock %}
+
+{% block contenido %}
+<p><a href="{% url 'proyecciones:revision' %}?periodo={{ proyeccion.periodo.pk }}">« Volver a la revisión</a></p>
+<section class="tarjeta">
+  <h1>{{ proyeccion.area.nombre }} · periodo {{ proyeccion.periodo.anio }}</h1>
+  {% if not aprobada %}<p><a href="{% url 'proyecciones:importar_excel' proyeccion.pk %}">Importar líneas desde Excel</a></p>{% endif %}
+  <p>Estado: {% include "proyecciones/_estado_proyeccion.html" with estado=proyeccion.estado %} · Periodo {% if periodo_abierto %}abierto{% else %}cerrado{% endif %} · Costo {% if aprobada %}aprobado{% else %}total{% endif %}: <strong>$ {{ costo_total|floatformat:"2g" }}</strong>{% if aprobada %} · Costo vigente: <strong>$ {{ costo_vigente|floatformat:"2g" }}</strong>{% endif %}</p>
+  {% if proyeccion.fecha_envio %}<p class="texto-suave">Enviada el {{ proyeccion.fecha_envio|date:"d/m/Y H:i" }}{% if proyeccion.enviado_por %} por {{ proyeccion.enviado_por.nombre }}{% endif %}.</p>{% endif %}
+  {% if aprobada %}<div class="mensaje mensaje--success" role="status">Aprobada el {{ proyeccion.fecha_aprobacion|date:"d/m/Y H:i" }}{% if proyeccion.aprobado_por %} por {{ proyeccion.aprobado_por.nombre }}{% endif %}. La edición ordinaria está bloqueada: los cambios se registran como ajustes justificados y se conserva el valor aprobado.</div>{% endif %}
+  {% if proyeccion.estado == "borrador" %}<div class="mensaje mensaje--warning" role="status">La proyección está en borrador: la está diligenciando el área. Se podrá corregir y aprobar cuando la envíe.</div>{% endif %}
+  {% if aprobaciones %}<p class="texto-suave">Aprobaciones de este envío ({{ aprobaciones|length }} de {{ aprobaciones_requeridas }}): {% for aprobacion in aprobaciones %}{{ aprobacion.usuario.nombre }} el {{ aprobacion.fecha|date:"d/m/Y H:i" }}{% if not forloop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
+
+  {% if formulario_autorizacion %}
+  <h2>Cantidad autorizada y aprobación</h2>
+  <p class="texto-suave">La cantidad autorizada de cada línea es, por defecto, su total anual. Puede cambiarla y guardarla, o aprobar directamente. Aprobaciones requeridas de administradores distintos: {{ aprobaciones_requeridas }} (decisión D-01).</p>
+  <form method="post" action="{% url 'proyecciones:revision_aprobar' proyeccion.pk %}" novalidate>
+    {% csrf_token %}
+    {% if formulario_autorizacion.non_field_errors %}<div class="mensaje mensaje--error" role="alert">{{ formulario_autorizacion.non_field_errors|join:" " }}</div>{% endif %}
+  {% endif %}
+  <div class="tabla-contenedor">
+    <table class="tabla tabla-lineas">
+      <caption class="visualmente-oculto">Líneas de la proyección</caption>
+      <thead><tr><th scope="col">Producto o servicio</th><th scope="col">Dependencia</th><th scope="col">Unidad</th><th scope="col">Ene</th><th scope="col">Feb</th><th scope="col">Mar</th><th scope="col">Abr</th><th scope="col">May</th><th scope="col">Jun</th><th scope="col">Jul</th><th scope="col">Ago</th><th scope="col">Sep</th><th scope="col">Oct</th><th scope="col">Nov</th><th scope="col">Dic</th><th scope="col" class="numero">Precio</th><th scope="col" class="numero">Total anual</th><th scope="col" class="numero">Costo anual</th><th scope="col" class="numero">Cantidad autorizada</th>{% if corregible or aprobada %}<th scope="col">Acciones</th>{% endif %}</tr></thead>
+      <tbody>
+      {% if formulario_autorizacion %}
+        {% for linea, campo in formulario_autorizacion.filas %}
+        <tr>
+          <td>{{ linea.producto_servicio }}</td><td>{{ linea.dependencia|default:"—" }}</td><td>{{ linea.unidad }}</td><td>{{ linea.cantidad_enero }}</td><td>{{ linea.cantidad_febrero }}</td><td>{{ linea.cantidad_marzo }}</td><td>{{ linea.cantidad_abril }}</td><td>{{ linea.cantidad_mayo }}</td><td>{{ linea.cantidad_junio }}</td><td>{{ linea.cantidad_julio }}</td><td>{{ linea.cantidad_agosto }}</td><td>{{ linea.cantidad_septiembre }}</td><td>{{ linea.cantidad_octubre }}</td><td>{{ linea.cantidad_noviembre }}</td><td>{{ linea.cantidad_diciembre }}</td>
+          <td class="numero">{{ linea.precio_estimado|floatformat:"2g" }}</td><td class="numero">{{ linea.total_anual }}</td><td class="numero">{{ linea.costo_anual|floatformat:"2g" }}</td>
+          <td class="numero{% if campo.errors %} campo--error{% endif %}">{{ campo }}{{ campo.errors }}</td>
+          <td class="tabla__acciones"><a href="{% url 'proyecciones:revision_corregir_linea' proyeccion.pk linea.pk %}">Corregir</a></td>
+        </tr>
+        {% empty %}<tr><td colspan="20">La proyección no tiene líneas.</td></tr>
+        {% endfor %}
+      {% elif aprobada %}
+        {% for linea in lineas %}
+        <tr>
+          <td>{{ linea.producto_servicio }}{% if linea.campos_ajustados %} <span class="estado estado--aviso">Ajustada</span>{% endif %}</td><td>{{ linea.dependencia|default:"—" }}</td><td>{{ linea.unidad }}</td><td{% if "cantidad_enero" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_enero }}"{% endif %}>{{ linea.vigente.cantidad_enero }}</td><td{% if "cantidad_febrero" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_febrero }}"{% endif %}>{{ linea.vigente.cantidad_febrero }}</td><td{% if "cantidad_marzo" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_marzo }}"{% endif %}>{{ linea.vigente.cantidad_marzo }}</td><td{% if "cantidad_abril" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_abril }}"{% endif %}>{{ linea.vigente.cantidad_abril }}</td><td{% if "cantidad_mayo" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_mayo }}"{% endif %}>{{ linea.vigente.cantidad_mayo }}</td><td{% if "cantidad_junio" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_junio }}"{% endif %}>{{ linea.vigente.cantidad_junio }}</td><td{% if "cantidad_julio" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_julio }}"{% endif %}>{{ linea.vigente.cantidad_julio }}</td><td{% if "cantidad_agosto" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_agosto }}"{% endif %}>{{ linea.vigente.cantidad_agosto }}</td><td{% if "cantidad_septiembre" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_septiembre }}"{% endif %}>{{ linea.vigente.cantidad_septiembre }}</td><td{% if "cantidad_octubre" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_octubre }}"{% endif %}>{{ linea.vigente.cantidad_octubre }}</td><td{% if "cantidad_noviembre" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_noviembre }}"{% endif %}>{{ linea.vigente.cantidad_noviembre }}</td><td{% if "cantidad_diciembre" in linea.campos_ajustados %} class="celda-ajustada" title="Aprobado: {{ linea.cantidad_diciembre }}"{% endif %}>{{ linea.vigente.cantidad_diciembre }}</td>
+          <td class="numero">{{ linea.vigente.precio_estimado|floatformat:"2g" }}{% if "precio_estimado" in linea.campos_ajustados %}<div class="ayuda">Aprobado: {{ linea.precio_estimado|floatformat:"2g" }}</div>{% endif %}</td>
+          <td class="numero">{{ linea.total_vigente }}{% if linea.total_vigente != linea.total_anual %}<div class="ayuda">Aprobado: {{ linea.total_anual }}</div>{% endif %}</td>
+          <td class="numero">{{ linea.costo_vigente|floatformat:"2g" }}{% if linea.costo_vigente != linea.costo_anual %}<div class="ayuda">Aprobado: {{ linea.costo_anual|floatformat:"2g" }}</div>{% endif %}</td>
+          <td class="numero">{{ linea.vigente.cantidad_autorizada|default_if_none:"—" }}{% if "cantidad_autorizada" in linea.campos_ajustados %}<div class="ayuda">Aprobada: {{ linea.cantidad_autorizada|default_if_none:"—" }}</div>{% endif %}</td>
+          <td class="tabla__acciones"><a href="{% url 'proyecciones:revision_ajustar_linea' proyeccion.pk linea.pk %}">Ajustar</a></td>
+        </tr>
+        {% empty %}<tr><td colspan="20">La proyección no tiene líneas.</td></tr>
+        {% endfor %}
+      {% else %}
+        {% for linea in lineas %}
+        <tr>
+          <td>{{ linea.producto_servicio }}</td><td>{{ linea.dependencia|default:"—" }}</td><td>{{ linea.unidad }}</td><td>{{ linea.cantidad_enero }}</td><td>{{ linea.cantidad_febrero }}</td><td>{{ linea.cantidad_marzo }}</td><td>{{ linea.cantidad_abril }}</td><td>{{ linea.cantidad_mayo }}</td><td>{{ linea.cantidad_junio }}</td><td>{{ linea.cantidad_julio }}</td><td>{{ linea.cantidad_agosto }}</td><td>{{ linea.cantidad_septiembre }}</td><td>{{ linea.cantidad_octubre }}</td><td>{{ linea.cantidad_noviembre }}</td><td>{{ linea.cantidad_diciembre }}</td>
+          <td class="numero">{{ linea.precio_estimado|floatformat:"2g" }}</td><td class="numero">{{ linea.total_anual }}</td><td class="numero">{{ linea.costo_anual|floatformat:"2g" }}</td><td class="numero">{{ linea.cantidad_autorizada|default_if_none:"—" }}</td>
+        </tr>
+        {% empty %}<tr><td colspan="19">La proyección no tiene líneas.</td></tr>
+        {% endfor %}
+      {% endif %}
+      </tbody>
+    </table>
+  </div>
+  {% if aprobada %}<p class="texto-suave">Las celdas resaltadas tienen ajustes; pase el cursor sobre ellas para ver el valor aprobado.</p>{% endif %}
+  {% if formulario_autorizacion %}
+    {% include "configuracion/_campo.html" with campo=formulario_autorizacion.motivo %}
+    <div class="acciones-formulario">
+      <button type="submit" class="boton boton--secundario" name="accion" value="guardar">Guardar cantidades autorizadas</button>
+      <button type="submit" class="boton" name="accion" value="aprobar">Aprobar proyección</button>
+    </div>
+  </form>
+  {% endif %}
+</section>
+
+{% if aprobada %}
+<section class="tarjeta">
+  <h2>Ajustes posteriores a la aprobación</h2>
+  {% if ajustes %}
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <caption class="visualmente-oculto">Ajustes registrados</caption>
+      <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Línea</th><th scope="col">Campo</th><th scope="col">Aprobado</th><th scope="col">Antes del ajuste</th><th scope="col">Nuevo</th><th scope="col">Justificación</th><th scope="col">Usuario</th></tr></thead>
+      <tbody>
+      {% for ajuste in ajustes %}<tr><td>{{ ajuste.fecha|date:"d/m/Y H:i" }}</td><td>{{ ajuste.linea.producto_servicio }}</td><td>{{ ajuste.etiqueta_campo }}</td><td>{{ ajuste.valor_aprobado|default_if_none:"—" }}</td><td>{{ ajuste.valor_anterior|default_if_none:"—" }}</td><td>{{ ajuste.valor_nuevo|default_if_none:"—" }}</td><td>{{ ajuste.justificacion }}</td><td>{{ ajuste.usuario.nombre }}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="texto-suave">Todavía no hay ajustes. Use «Ajustar» en una línea para registrar uno.</p>{% endif %}
+</section>
+{% endif %}
+
+{% if corregible %}
+<section class="tarjeta tarjeta--formulario">
+  <h2>Devolver al área</h2>
+  {% if not devolucion_habilitada %}
+  <p class="texto-suave">La devolución está desactivada por el parámetro D-01. Corrija las líneas directamente o cambie el parámetro en <a href="{% url 'configuracion:parametros' %}">Configuración › Parámetros</a>.</p>
+  {% elif not periodo_abierto %}
+  <p class="texto-suave">El periodo está cerrado: el área no podría corregir la proyección. Reabra el periodo en <a href="{% url 'proyecciones:abrir_periodo' %}">Periodos de proyección</a> antes de devolverla.</p>
+  {% else %}
+  <p class="texto-suave">La proyección vuelve a borrador para que el área la corrija y la envíe de nuevo. El área verá el motivo. Las aprobaciones parciales de este envío dejan de contar.</p>
+  <form method="post" action="{% url 'proyecciones:revision_devolver' proyeccion.pk %}" novalidate>
+    {% csrf_token %}
+    {% for campo in formulario_devolucion %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <div class="acciones-formulario"><button type="submit" class="boton">Devolver al área</button></div>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="tarjeta">
+  <div class="encabezado-seccion">
+    <h2>Historial</h2>
+    {% if historial %}<a href="{% url 'bitacora:consulta' %}?tipo_objeto={{ tipo_proyeccion }}&amp;objeto_id={{ proyeccion.pk }}">Ver la proyección en la bitácora</a>{% endif %}
+  </div>
+  {% if historial %}
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <caption class="visualmente-oculto">Historial de cambios de la proyección y sus líneas</caption>
+      <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Actor</th><th scope="col">Acción</th><th scope="col">Objeto</th><th scope="col">Motivo</th></tr></thead>
+      <tbody>
+      {% for registro in historial %}<tr><td>{{ registro.fecha|date:"d/m/Y H:i" }}</td><td>{{ registro.actor.nombre|default:registro.actor_texto|default:"Sistema" }}</td><td>{{ registro.accion }}</td><td>{{ registro.objeto_texto }}</td><td>{{ registro.motivo }}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="texto-suave">Sin registros en la bitácora.</p>{% endif %}
+</section>
+{% endblock %}

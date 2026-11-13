@@ -1,0 +1,1 @@
+{% if proveedor.estado == "aprobado" %}<span class="estado estado--activo">{{ proveedor.get_estado_display }}</span>{% elif proveedor.estado == "inactivo" %}<span class="estado estado--inactivo">{{ proveedor.get_estado_display }}</span>{% else %}<span class="estado estado--info">{{ proveedor.get_estado_display }}</span>{% endif %}

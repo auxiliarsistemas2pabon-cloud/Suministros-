@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Estado documental · lista {{ lista.pk }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Evaluación FR-GDS-14 y documentos · lista {{ lista.pk }}</h1>
+<p><a href="{% url 'compras:lista_detalle' lista.pk %}">{{ lista.necesidad.objeto }}</a> · {{ lista.estado }}</p>
+<p><a href="{% url 'compras:lista_decision' lista.pk %}">Ver puestos y decisión</a> · <a href="{% url 'compras:lista_exportar' lista.pk %}">Exportar lista con estado documental</a></p>
+{% if control.historico %}
+{% if control.sin_foto %}<div class="mensaje mensaje--warning" role="status">Esta lista no tiene foto documental histórica. No se reconstruye con evaluaciones o documentos actuales.</div>{% else %}<p>Foto conservada al cierre: referencia {{ control.referencia|date:"d/m/Y" }}. Registró {{ lista.documental_por }} el {{ lista.documental_fecha|date:"d/m/Y H:i" }}. Los cambios posteriores no alteran este estado.</p>{% endif %}
+{% else %}<p>Consulta actual a {{ control.referencia|date:"d/m/Y" }}. Se muestra la última evaluación finalizada no anulada de cada proveedor. Al cerrar se conservarán la referencia y la foto del estado documental.</p>{% endif %}
+{% if not control.sin_foto %}<div class="mensaje mensaje--warning" role="status">Reglas provisionales pendientes de aprobación: modo {{ control.reglas.modo }}, antigüedad máxima {{ control.reglas.meses }} meses calendario. La lista oficial de documentos D-05 sigue pendiente.</div>
+<p>El control de cierre se aplica a proveedores con cantidad autorizada mayor que cero. En modo bloquear, impide continuar sin FR14 vigente o con documentos obligatorios vencidos. Las demás advertencias de elegidos requieren justificación; próximos a vencer son informativos.</p>
+{% if not control.historico %}<p><a href="{% url 'configuracion:parametros' %}">Configurar modo y antigüedad</a></p>{% endif %}{% endif %}
+{% for fila in control.filas %}
+<section class="tarjeta"><h2>{{ fila.participante.razon_social }} · NIT {{ fila.participante.nit }}</h2>
+<p>Cantidad autorizada: {{ fila.participante.cantidad_autorizada }}. {% if fila.elegido %}Proveedor elegido; se aplican controles de cierre.{% else %}Sin elección; las alertas no bloquean por este participante.{% endif %}</p>
+{% if fila.foto %}
+{% if fila.foto.evaluacion %}<p>FR-GDS-14: <a href="{% url 'proveedores:evaluacion_detalle' fila.foto.evaluacion.id %}">Evaluación {{ fila.foto.evaluacion.id }}</a> · {{ fila.foto.evaluacion.fecha }} · calificación {{ fila.foto.evaluacion.calificacion|default_if_none:"No calculable" }} · categoría {{ fila.foto.evaluacion.categoria }} · versión {{ fila.foto.evaluacion.version }}.</p><p>Límite por antigüedad: {{ fila.foto.evaluacion.limite_antiguedad }}.</p>{% else %}<p>Sin evaluación FR-GDS-14 finalizada vigente.</p>{% endif %}
+{% for aviso in fila.foto.advertencias %}<p class="mensaje mensaje--warning">{{ aviso }}</p>{% endfor %}
+{% for aviso in fila.foto.informativas %}<p class="mensaje mensaje--info">{{ aviso }}</p>{% endfor %}
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Documento</th><th>Requisito</th><th>Obligatorio</th><th>Estado</th><th>Expedición</th><th>Vencimiento</th><th>Referencia</th></tr></thead><tbody>
+{% for documento in fila.foto.documentos %}<tr><td>{{ documento.tipo }}</td><td>{{ documento.requisito }}</td><td>{{ documento.obligatorio|yesno:"Sí,No" }}</td><td>{{ documento.etiqueta }}</td><td>{{ documento.expedicion|default_if_none:"—" }}</td><td>{{ documento.vencimiento|default_if_none:"—" }}</td><td>{{ documento.documento_id|default_if_none:"Sin documento" }}</td></tr>
+{% empty %}<tr><td colspan="7">Sin exigencias configuradas para esta categoría y versión. Esto no acredita una lista oficial completa.</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p>Sin foto documental histórica para este participante.</p>{% endif %}
+</section>{% empty %}<p>No hay participantes activos.</p>{% endfor %}
+<section class="tarjeta"><h2>Justificación documental</h2>{{ formulario.non_field_errors }}
+{% if lista.estado == "borrador" %}<form method="post" novalidate>{% csrf_token %}
+{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+<button type="submit" class="boton">Comprobar revisión y guardar justificación</button>
+</form><p>La revisión no cierra la lista. Se comprobarán nuevamente evaluación, vigencias y parámetros al cerrar desde el detalle de la lista.</p>
+{% else %}<p>{{ control.justificacion|default:"Sin justificación registrada"|linebreaksbr }}</p>{% endif %}
+</section>
+{% endblock %}

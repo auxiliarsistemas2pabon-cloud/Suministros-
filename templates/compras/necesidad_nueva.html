@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Nueva necesidad{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Nueva necesidad</h1>
+<section class="tarjeta"><h2>Buscar líneas aprobadas (opcional)</h2>
+  <form method="get">
+    {{ filtro.non_field_errors }}
+    {% for campo in filtro %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <button class="boton boton--secundario" type="submit">Consultar líneas</button>
+  </form>
+  <p>Seleccione primero el área y, si lo desea, el periodo. Las líneas disponibles pertenecen a proyecciones aprobadas de esa área.</p>
+</section>
+<section class="tarjeta"><h2>Datos de la necesidad</h2>
+<form method="post" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="periodo" value="{{ periodo_id }}">
+  {{ formulario.non_field_errors }}
+  {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+  <h3>Líneas de origen</h3>
+  <p>Puede agrupar varias líneas o usar parte de una línea en distintas necesidades. Cada cantidad conserva su unidad. La política de reserva de cantidades está pendiente de definición (D-09).</p>
+  {{ origenes.management_form }}{{ origenes.non_form_errors }}
+  <div id="origenes-filas">
+    {% for origen in origenes %}
+    <fieldset><legend>Origen {{ forloop.counter }}</legend>{{ origen.non_field_errors }}
+      {% include "compras/_campos_origen.html" %}
+    </fieldset>
+    {% endfor %}
+  </div>
+  <template id="origen-vacio"><fieldset><legend>Origen adicional</legend>{% include "compras/_campos_origen.html" with origen=origenes.empty_form %}</fieldset></template>
+  <button type="button" class="boton boton--secundario" id="agregar-origen" hidden>Agregar otra línea</button>
+  <p>Si no toma líneas de una proyección, deje los orígenes vacíos e indique un tipo o describa el origen de la necesidad.</p>
+  <button type="submit" class="boton">Crear necesidad</button>
+</form></section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/origenes_necesidad.js' %}" defer></script>{% endblock %}

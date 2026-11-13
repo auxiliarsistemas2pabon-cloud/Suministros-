@@ -1,0 +1,5 @@
+{% for campo in origen %}
+<div class="campo{% if campo.errors %} campo--error{% endif %}">
+  {{ campo.label_tag }}{{ campo.errors }}{{ campo }}
+</div>
+{% endfor %}

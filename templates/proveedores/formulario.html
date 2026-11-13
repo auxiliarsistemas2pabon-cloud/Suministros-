@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block contenido %}
+{% include "proveedores/_submenu.html" %}
+<section class="tarjeta tarjeta--formulario">
+  <h1>{{ titulo }}</h1>
+  {% if nota %}<p class="texto-suave">{{ nota }}</p>{% endif %}
+  <p class="texto-suave">Los campos marcados con <span class="obligatorio">*</span> son obligatorios.</p>
+
+  <form method="post" novalidate{% if con_archivo %} enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    {% if formulario.non_field_errors %}
+    <div class="mensaje mensaje--error" role="alert">{{ formulario.non_field_errors|join:" " }}</div>
+    {% endif %}
+    {% for campo in formulario %}
+    {% include "configuracion/_campo.html" %}
+    {% endfor %}
+    <div class="acciones-formulario">
+      <button type="submit" class="boton{% if peligro %} boton--peligro{% endif %}">{{ boton }}</button>
+      <a class="boton boton--secundario" href="{{ volver }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

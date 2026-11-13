@@ -1,0 +1,1 @@
+{% if documento.vigencia == "vencido" %}<span class="vigencia vigencia--vencido">Vencido</span>{% elif documento.vigencia == "por_vencer" %}<span class="vigencia vigencia--por-vencer">Por vencer</span>{% elif documento.vigencia == "vigente" %}<span class="vigencia vigencia--vigente">Vigente</span>{% else %}<span class="vigencia vigencia--sin">No vence</span>{% endif %}

@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class SeguimientosConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "seguimientos"
+    verbose_name = "Seguimientos FR-GDS-27"

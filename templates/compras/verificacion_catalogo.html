@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Catálogo de verificaciones{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>{% if clase == "tipos" %}Tipos de verificación{% else %}Estados de verificación{% endif %}</h1>
+<p><a href="{% url 'compras:verificacion_catalogo' 'tipos' %}">Tipos y obligatoriedad</a> · <a href="{% url 'compras:verificacion_catalogo' 'estados' %}">Estados</a>.</p>
+<p>Configuración provisional: la clínica define sus tipos, estados y obligatoriedad. Los registros anteriores conservan el nombre y significado que confirmó el responsable.</p>
+<section class="tarjeta"><ul>{% for registro in registros %}<li><a href="{% url 'compras:verificacion_catalogo_editar' clase registro.pk %}">{{ registro.nombre }}</a> · orden {{ registro.orden }} · {{ registro.activo|yesno:"Activo,Inactivo" }}{% if clase == "tipos" %} · {{ registro.obligatoria|yesno:"Obligatoria,Opcional" }} · {{ registro.get_origen_display }}{% else %} · {{ registro.get_clasificacion_display }}{% endif %}</li>{% endfor %}</ul></section>
+<section class="tarjeta"><h2>{% if formulario.instance.pk %}Editar{% else %}Crear{% endif %}</h2><form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Guardar configuración</button>{% if formulario.instance.pk %}<a href="{% url 'compras:verificacion_catalogo' clase %}">Volver al catálogo</a>{% endif %}</form></section>
+{% endblock %}

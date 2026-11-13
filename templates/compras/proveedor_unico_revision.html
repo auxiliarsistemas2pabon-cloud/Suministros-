@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Historial de proveedor único{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Proveedor único · {{ cotizacion.consecutivo }} · revisión {{ revision.numero }}</h1>
+<p>Confirmó {{ revision.actor }} el {{ revision.fecha|date:"d/m/Y H:i" }}. Motivo: {{ revision.motivo }}.</p>
+<p>Caso de proveedor único: {{ foto.proveedor_unico|yesno:"Sí,No" }}. Causal: {{ foto.causal|default:"Sin causal" }}.</p>
+<p>{{ foto.justificacion|linebreaksbr }}</p>
+{% if foto.oferta %}<p>Oferta {{ foto.oferta.id }}, revisión {{ foto.oferta.revision }} · {{ foto.oferta.razon_social }} · NIT {{ foto.oferta.nit }}.</p>{% endif %}
+<p>Reglas al guardar: mínimo {{ foto.reglas.min_caracteres }} caracteres; evidencia {{ foto.reglas.evidencia_obligatoria|yesno:"obligatoria,opcional" }}.</p>
+{% if revision.pdf_id %}<p><a href="{% url 'compras:proveedor_unico_pdf' cotizacion.pk revision.pdf_id %}">Descargar evidencia conservada</a></p>{% endif %}
+<p><a href="{% url 'compras:proveedor_unico' cotizacion.pk %}">Volver al caso actual</a></p>
+{% endblock %}

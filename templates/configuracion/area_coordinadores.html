@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block titulo %}Coordinadores de {{ area.nombre }}{% endblock %}
+
+{% block contenido %}
+{% include "configuracion/_submenu.html" %}
+<section class="tarjeta tarjeta--formulario">
+  <h1>Coordinadores del área «{{ area.nombre }}»</h1>
+
+  <h2>Coordinadores actuales</h2>
+  {% if actuales %}
+  <ul class="lista-simple">
+    {% for coordinador in actuales %}<li>{{ coordinador.nombre }} &lt;{{ coordinador.correo }}&gt;</li>{% endfor %}
+  </ul>
+  {% else %}
+  <p class="texto-suave">Esta área todavía no tiene coordinadores activos.</p>
+  {% endif %}
+
+  <h2>Asignar coordinadores</h2>
+  {% if not area.activa %}
+  <div class="mensaje mensaje--warning" role="status">El área está inactiva. Actívela para poder asignarle coordinadores.</div>
+  {% elif not hay_disponibles %}
+  <div class="mensaje mensaje--warning" role="status">No hay coordinadores disponibles en otras áreas. <a href="{{ crear_url }}">Crear un usuario coordinador para esta área</a>.</div>
+  {% else %}
+  <p class="texto-suave">Cada coordinador pertenece a una sola área: al asignarlo aquí, deja su área actual. Para crear uno nuevo, <a href="{{ crear_url }}">cree un usuario coordinador</a>.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if formulario.non_field_errors %}
+    <div class="mensaje mensaje--error" role="alert">{{ formulario.non_field_errors|join:" " }}</div>
+    {% endif %}
+    {% for campo in formulario %}
+    {% include "configuracion/_campo.html" %}
+    {% endfor %}
+    <div class="acciones-formulario">
+      <button type="submit" class="boton">Asignar al área</button>
+      <a class="boton boton--secundario" href="{% url 'configuracion:areas' %}">Volver</a>
+    </div>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

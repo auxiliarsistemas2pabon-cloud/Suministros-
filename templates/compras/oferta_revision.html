@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Revisión {{ revision.numero }} de oferta{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Revisión {{ revision.numero }} · {{ foto.razon_social }}</h1><p><a href="{% url 'compras:oferta_detalle' oferta.cotizacion_id oferta.pk %}">Volver a la oferta</a> · {{ revision.actor }} · {{ revision.fecha|date:"d/m/Y H:i" }}.</p>
+<p>Motivo: {{ revision.motivo }}. NIT {{ foto.nit }} · {{ foto.contacto_nombre }} · {{ foto.contacto_correo }} · {{ foto.contacto_telefono }}.</p><p>Fecha {{ foto.fecha }} · vigente hasta {{ foto.vigente_hasta|default_if_none:"Sin fecha indicada" }}.</p>
+<p>{{ foto.observacion|linebreaksbr }}</p><p>Reglas guardadas: {{ foto.reglas.decimales }} decimales y {{ foto.reglas.modo }}. D-11 provisional.</p>
+{% if revision.pdf_id %}<p><a href="{% url 'compras:oferta_pdf' oferta.cotizacion_id oferta.pk revision.pdf_id %}">Descargar PDF de esta revisión</a></p>{% endif %}
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Descripción</th><th>Cantidad</th><th>Precio</th><th>Tarifa</th><th>Subtotal</th><th>Impuesto</th><th>Total</th></tr></thead><tbody>
+{% for linea in foto.lineas %}<tr><td>{{ linea.especificacion.descripcion }}</td><td>{{ linea.cantidad }} {{ linea.especificacion.unidad }}</td><td>{{ linea.precio_unitario }}</td><td>{{ linea.tarifa }} · {{ linea.porcentaje }} %</td><td>{{ linea.subtotal }}</td><td>{{ linea.impuesto }}</td><td>{{ linea.total }}</td></tr>{% endfor %}
+</tbody></table></div><p>Subtotal {{ foto.subtotal }} · Impuesto {{ foto.impuesto }} · Total {{ foto.total }}.</p>
+{% endblock %}

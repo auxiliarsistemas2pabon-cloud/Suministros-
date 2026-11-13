@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block titulo %}Búsqueda rápida{% endblock %}
+{% block contenido %}<h1>Búsqueda rápida</h1><form method="get" role="search"><label for="busqueda-q">NIT, proveedor o consecutivo</label><input id="busqueda-q" name="q" value="{{ q }}" maxlength="200"><button class="boton">Buscar</button></form><p><a href="{% url 'configuracion:listado_global' 'ordenes' %}">Abrir filtros de todos los listados</a></p><ul>{% for fila in resultados %}<li>{{ fila.tipo }} · <a href="{{ fila.url }}">{{ fila.texto }}</a></li>{% empty %}<li>Sin resultados. Indique NIT, razón social o consecutivo de orden/cotización.</li>{% endfor %}</ul><p>Se muestran hasta 25 resultados por módulo; use los listados para refinar y exportar.</p>{% endblock %}

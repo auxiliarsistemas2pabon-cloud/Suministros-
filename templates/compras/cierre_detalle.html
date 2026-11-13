@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}Cierre histórico de elegibles{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Cierre histórico · lista {{ lista.pk }}</h1>
+<p><a href="{% url 'compras:lista_detalle' lista.pk %}">Volver a la lista actual</a></p>
+<p>{{ cierre.actor }} · {{ cierre.fecha|date:"d/m/Y H:i" }} · {{ cierre.motivo }}.</p>
+<p>{{ foto.necesidad.objeto }} · {{ foto.necesidad.area }}. Base: {{ foto.base.cantidad }} {{ foto.base.unidad }}.</p>
+<p>Versión de criterios {{ foto.numero_version }} · método {{ foto.reglas.metodo }} · escala {{ foto.reglas.escala|join:" / " }}. Esta copia conserva el estado de ese cierre, aunque la lista se haya reabierto o anulado.</p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>NIT</th><th>Razón social</th><th>Puntaje</th><th>Puesto</th><th>Cantidad</th><th>Observación</th><th>Justificación de elección</th></tr></thead><tbody>
+{% for fila in foto.filas %}<tr><td>{{ fila.nit }}</td><td>{{ fila.razon_social }}</td><td>{{ fila.total }} / {{ fila.maximo }}</td><td>{{ fila.puesto }}{% if fila.empate %} · Empate por puntaje{% endif %}{% if fila.desempate %} · {{ fila.desempate.justificacion }}{% endif %}</td><td>{{ fila.cantidad_autorizada }} {{ foto.base.unidad }}</td><td>{{ fila.observacion }}</td><td>{{ fila.justificacion_eleccion }}</td></tr>{% endfor %}
+</tbody></table></div>
+<p>Justificación de proveedor único: {{ foto.decision.justificacion_unico|default:"No aplica" }}.</p>
+<p>Justificación de exceso de cantidad: {{ foto.decision.justificacion_cantidad|default:"No aplica" }}.</p>
+{% for fila in foto.filas %}<section class="tarjeta"><h2>Calificaciones · {{ fila.razon_social }}</h2><div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Criterio</th><th>Peso %</th><th>Cumplimiento</th><th>Subtotal</th><th>Observación</th></tr></thead><tbody>{% for celda in fila.celdas %}<tr><td>{{ celda.nombre }}</td><td>{{ celda.peso }}</td><td>{{ celda.cumplimiento }}</td><td>{{ celda.subtotal }}</td><td>{{ celda.observacion }}</td></tr>{% endfor %}</tbody></table></div></section>{% endfor %}
+<section class="tarjeta"><h2>Documentos conservados</h2><p>Referencia {{ documental.referencia }} · modo {{ documental.reglas.modo }} · {{ documental.reglas.meses }} meses.</p><p>{{ documental.justificacion }}</p>
+{% for participante in documental.filas %}<h3>{{ participante.razon_social }} · NIT {{ participante.nit }}</h3>{% if participante.foto.evaluacion %}<p><a href="{% url 'proveedores:evaluacion_detalle' participante.foto.evaluacion.id %}">Evaluación FR14 {{ participante.foto.evaluacion.id }}</a> · {{ participante.foto.evaluacion.fecha }} · calificación {{ participante.foto.evaluacion.calificacion }}.</p>{% else %}<p>Sin evaluación FR14 al cierre.</p>{% endif %}
+{% for aviso in participante.foto.advertencias %}<p>{{ aviso }}</p>{% endfor %}
+<ul>{% for documento in participante.foto.documentos %}<li>{{ documento.tipo }} · {{ documento.etiqueta }} · vencimiento {{ documento.vencimiento|default_if_none:"Sin fecha" }}.</li>{% empty %}<li>Sin exigencias en la foto.</li>{% endfor %}</ul>{% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}Tarifas de impuesto{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Tarifas de impuesto</h1><p>D-11 pendiente: configure las tarifas que corresponda aplicar. El valor inicial Exento/No gravado es 0 %. No se carga IVA fijo. Las ofertas guardadas conservan el porcentaje utilizado.</p>
+<section class="tarjeta"><h2>Catálogo</h2><ul>{% for tarifa in tarifas %}<li><a href="{% url 'compras:oferta_tarifa_editar' tarifa.pk %}">{{ tarifa.nombre }}</a> · {{ tarifa.porcentaje }} % · {{ tarifa.activo|yesno:"Activa,Inactiva" }}</li>{% endfor %}</ul></section>
+<section class="tarjeta"><h2>{% if formulario.instance.pk %}Editar tarifa{% else %}Crear tarifa{% endif %}</h2><form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Guardar tarifa</button>{% if formulario.instance.pk %}<a href="{% url 'compras:oferta_tarifas' %}">Volver al catálogo</a>{% endif %}</form></section>
+{% endblock %}

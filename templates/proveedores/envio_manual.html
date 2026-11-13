@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}Registrar envío manual{% endblock %}
+{% block contenido %}{% include "proveedores/_submenu.html" %}
+<section class="tarjeta tarjeta--formulario"><h1>Registrar envío manual</h1><p>Registre el PDF recibido por correo u otro medio. Quedará pendiente de revisión en nombre del proveedor elegido.</p>
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+<div class="acciones-formulario"><button class="boton" type="submit">Registrar envío</button><a href="{% url 'proveedores:bandeja' %}">Cancelar</a></div></form></section>
+{% endblock %}

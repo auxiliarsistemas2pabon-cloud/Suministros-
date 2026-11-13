@@ -1,0 +1,11 @@
+{% extends "admin/auth/user/change_password.html" %}
+
+{% block form_top %}
+<fieldset class="module aligned">
+  <div class="form-row field-motivo">
+    {{ form.motivo.errors }}
+    <div class="flex-container">{{ form.motivo.label_tag }} {{ form.motivo }}</div>
+    <div class="help">{{ form.motivo.help_text }} El usuario deberá cambiar la clave asignada en su próximo ingreso.</div>
+  </div>
+</fieldset>
+{% endblock %}

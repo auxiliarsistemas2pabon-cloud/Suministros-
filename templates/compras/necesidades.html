@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Necesidades y listas de elegibles{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Necesidades y listas de elegibles FR-GDS-20</h1>
+<p>Registre el objeto de la compra y sus proveedores participantes.</p>
+{% include "configuracion/_filtro.html" %}
+<p><a href="{% querystring formato="excel" %}">Exportar estos resultados a Excel</a></p>
+<div class="tabla-contenedor"><table class="tabla">
+  <thead><tr><th>Necesidad</th><th>Área</th><th>Fecha</th><th>Responsable</th><th>Estado de necesidad</th><th>Listas de elegibles</th></tr></thead>
+  <tbody>{% for necesidad in pagina %}
+    <tr><td><a href="{% url 'compras:necesidad_detalle' necesidad.pk %}">{{ necesidad.objeto|truncatechars:100 }}</a></td><td>{{ necesidad.area }}</td><td>{{ necesidad.fecha|date:"d/m/Y" }}</td><td>{{ necesidad.responsable }}</td><td>{{ necesidad.estado }}</td><td>{% for lista in necesidad.listas.all %}<a href="{% url 'compras:lista_detalle' lista.pk %}">Lista {{ lista.pk }} · {{ lista.estado_flujo }}</a>{% if not forloop.last %}<br>{% endif %}{% empty %}Sin listas{% endfor %}</td></tr>
+  {% empty %}<tr><td colspan="6">No hay necesidades registradas.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% include "configuracion/_paginacion.html" %}
+{% endblock %}

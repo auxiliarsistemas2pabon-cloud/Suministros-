@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block titulo %}Vencimientos de documentos{% endblock %}
+
+{% block contenido %}
+{% include "proveedores/_submenu.html" %}
+<h1>Vencimientos de documentos</h1>
+{% include "configuracion/_filtro.html" %}
+<p class="texto-suave">Documentos más recientes de cada tipo por proveedor que ya vencieron o están por vencer. Plazo general: {{ dias_alerta }} días{% if alertas_personalizadas %}, con plazos particulares según el tipo de documento{% endif %}. No se incluyen los proveedores inactivos. Para renovar un documento, cargue uno nuevo del mismo tipo.</p>
+
+<section aria-labelledby="titulo-vencidos">
+  <h2 id="titulo-vencidos">Vencidos ({{ vencidos|length }})</h2>
+  {% if vencidos %}
+  {% include "proveedores/_tabla_alertas.html" with documentos_alerta=vencidos titulo_tabla="Documentos vencidos" %}
+  {% else %}
+  <p>No hay documentos vencidos.</p>
+  {% endif %}
+</section>
+
+<section aria-labelledby="titulo-por-vencer">
+  <h2 id="titulo-por-vencer">Por vencer{% if not alertas_personalizadas %} en los próximos {{ dias_alerta }} días{% endif %} ({{ por_vencer|length }})</h2>
+  {% if por_vencer %}
+  {% include "proveedores/_tabla_alertas.html" with documentos_alerta=por_vencer titulo_tabla="Documentos por vencer" %}
+  {% else %}
+  <p>No hay documentos por vencer en ese plazo.</p>
+  {% endif %}
+</section>
+{% endblock %}

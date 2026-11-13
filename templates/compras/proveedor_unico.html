@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titulo %}Proveedor único · {{ cotizacion.consecutivo }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Proveedor único · {{ cotizacion.consecutivo }}</h1>
+<p><a href="{% url 'compras:cotizacion_detalle' cotizacion.pk %}">Volver a la cotización</a> · <a href="{% url 'compras:proveedor_unico_causales' %}">Configurar causales</a>.</p>
+<section class="tarjeta"><h2>Ofertas registradas: {{ ofertas|length }}</h2>
+{% if ofertas|length == 1 %}<p class="mensaje mensaje--warning">Hay una sola oferta. Revise y confirme el caso con causal y justificación antes de decidir.</p>{% elif cotizacion.proveedor_unico %}<p class="mensaje mensaje--warning">El caso confirmado ya no corresponde al número de ofertas. Revíselo antes de decidir.</p>{% endif %}
+<ul>{% for oferta in ofertas %}<li><a href="{% url 'compras:oferta_detalle' cotizacion.pk oferta.pk %}">{{ oferta.razon_social }} · NIT {{ oferta.nit }}</a></li>{% empty %}<li>Registre una oferta para confirmar un caso de proveedor único. Los invitados no cuentan como ofertas.</li>{% endfor %}</ul>
+<p>Estado guardado: {{ cotizacion.proveedor_unico|yesno:"Proveedor único confirmado,Sin caso confirmado" }} · revisión {{ cotizacion.revision_proveedor_unico }}.</p>
+{% if cotizacion.proveedor_unico %}<p>Causal: {{ cotizacion.causal_unico_nombre }}.</p><p>{{ cotizacion.justificacion_proveedor_unico|linebreaksbr }}</p>{% endif %}
+{% if cotizacion.pdf_proveedor_unico_id %}<p><a href="{% url 'compras:proveedor_unico_pdf' cotizacion.pk cotizacion.pdf_proveedor_unico_id %}">Descargar {{ cotizacion.pdf_proveedor_unico.nombre_archivo }}</a></p>{% endif %}
+</section>
+{% if editable %}<section class="tarjeta"><h2>Confirmar o actualizar el caso</h2>
+<p>La justificación debe tener al menos {{ reglas.min_caracteres }} caracteres, sin contar espacios repetidos. Evidencia PDF: {{ reglas.evidencia_obligatoria|yesno:"obligatoria,opcional" }}. Estos valores provisionales se ajustan en Configuración → Parámetros.</p>
+<p>La selección sugerida se registra al guardar. Para desmarcar, quite la confirmación y escriba el motivo; se conserva el historial.</p>
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario.hidden_fields %}{{ campo }}{{ campo.errors }}{% endfor %}{% for campo in formulario.visible_fields %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Guardar caso de proveedor único</button></form>
+</section>{% else %}<p>La cotización solo permite consultar el caso y sus evidencias.</p>{% endif %}
+<section class="tarjeta"><h2>Historial</h2><ul>{% for revision in revisiones %}<li><a href="{% url 'compras:proveedor_unico_revision' cotizacion.pk revision.pk %}">Revisión {{ revision.numero }}</a> · {{ revision.actor }} · {{ revision.fecha|date:"d/m/Y H:i" }} · {{ revision.motivo }}{% if revision.pdf_id %} · <a href="{% url 'compras:proveedor_unico_pdf' cotizacion.pk revision.pdf_id %}">Evidencia conservada</a>{% endif %}</li>{% empty %}<li>Sin cambios registrados.</li>{% endfor %}</ul></section>
+{% endblock %}

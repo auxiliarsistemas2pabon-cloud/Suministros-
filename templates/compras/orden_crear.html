@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Órdenes desde decisión aprobada{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Órdenes desde decisión {{ decision.pk }}</h1><p><a href="{% url 'compras:cotizacion_decision' decision.cotizacion_id decision.pk %}">Volver a la decisión</a></p>
+{% if existentes %}<p>Las órdenes de esta decisión ya se crearon. Repetir la operación conserva sus datos.</p><ul>{% for orden in existentes %}<li><a href="{% url 'compras:orden_detalle' orden.pk %}">Orden {{ orden.pk }} · {{ orden.razon_social }}</a></li>{% endfor %}</ul>{% else %}
+<p>Se copiarán las líneas y condiciones conservadas en la aprobación. Se creará una orden por proveedor adjudicado.</p>
+{% for grupo in grupos %}<section class="tarjeta"><h2>{{ grupo.proveedor.razon_social }} · NIT {{ grupo.proveedor.nit }}</h2><ul>{% for linea in grupo.lineas %}<li>{{ linea.descripcion }} · {{ linea.cantidad }} {{ linea.unidad }} · total {{ linea.total|floatformat:2 }}</li>{% endfor %}</ul></section>{% endfor %}
+<form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Crear borradores de orden</button></form>{% endif %}
+{% endblock %}

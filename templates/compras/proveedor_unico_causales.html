@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}Causales de proveedor único{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Causales de proveedor único</h1><p>Puede editar y desactivar las causales. Los casos anteriores conservan el nombre usado al confirmar.</p>
+<section class="tarjeta"><ul>{% for causal in causales %}<li><a href="{% url 'compras:proveedor_unico_causal_editar' causal.pk %}">{{ causal.nombre }}</a> · orden {{ causal.orden }} · {{ causal.activo|yesno:"Activa,Inactiva" }} · {{ causal.descripcion }}</li>{% endfor %}</ul></section>
+<section class="tarjeta"><h2>{% if formulario.instance.pk %}Editar{% else %}Crear{% endif %} causal</h2><form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Guardar causal</button>{% if formulario.instance.pk %}<a href="{% url 'compras:proveedor_unico_causales' %}">Volver al catálogo</a>{% endif %}</form></section>
+{% endblock %}

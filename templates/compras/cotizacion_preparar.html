@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Preparar cotización{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Crear cotización · FR-GDS-28</h1>
+{% if lista %}
+<p>Origen: <a href="{% url 'compras:lista_detalle' lista.pk %}">lista {{ lista.pk }}</a> · <a href="{% url 'compras:necesidad_detalle' lista.necesidad_id %}">necesidad {{ lista.necesidad_id }}</a>.</p>
+<p>{{ datos.necesidad.objeto }} · {{ datos.necesidad.area }}.</p>
+<p>Cantidad base conservada: {{ datos.base.cantidad }} {{ datos.base.unidad }}.</p>
+<section class="tarjeta"><h2>Proveedores elegidos para invitar</h2>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>NIT</th><th>Razón social</th><th>Cantidad autorizada</th></tr></thead><tbody>
+{% for proveedor in datos.invitados %}<tr><td>{{ proveedor.nit }}</td><td>{{ proveedor.razon_social }}</td><td>{{ proveedor.cantidad_autorizada }}</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% else %}
+<section class="tarjeta"><h2>Precargar una necesidad (opcional)</h2><form method="get">{{ seleccion.non_field_errors }}{% for campo in seleccion %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton boton--secundario" type="submit">Consultar origen</button></form><p>Seleccione primero la necesidad para precargar sus líneas. También puede completar las especificaciones manualmente.</p></section>
+{% endif %}
+<p>La cotización aún no se ha creado. Revise el encabezado y las líneas, indique el motivo y guarde para crear el borrador.</p>
+<div class="mensaje mensaje--warning" role="status">D-10 pendiente de aprobación: máximo de invitados {{ limites.oferentes|default:"sin límite" }} y líneas {{ limites.lineas|default:"sin límite" }}. No se descartan datos automáticamente.</div>
+<p><a href="{% url 'configuracion:parametros' %}">Configurar límites</a> · <a href="{% url 'compras:cotizacion_tipos' %}">Administrar tipos</a></p>
+{% if necesidad %}<p>Área: {{ necesidad.area }}. Responsable del registro: {{ user }}.</p>{% endif %}
+<section class="tarjeta"><h2>Encabezado y especificaciones</h2>
+<form method="post" action="{{ accion }}" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+{{ formulario.revision_origen }}{{ formulario.revision_origen.errors }}
+{% for campo in formulario.visible_fields %}{% include "configuracion/_campo.html" %}{% endfor %}
+<h3>Líneas de cotización</h3><p>Seleccione unidades activas del catálogo. Si la unidad de origen ya no está disponible o la necesidad es manual, elija expresamente la unidad correcta.</p>
+{{ filas.management_form }}{{ filas.non_form_errors }}
+<div id="lineas-cotizacion" data-limite="{{ limites.lineas }}">{% for origen in filas %}<fieldset data-linea><legend>Línea {{ forloop.counter }}</legend>{{ origen.non_field_errors }}{% include "compras/_campos_origen.html" %}</fieldset>{% endfor %}</div>
+<template id="linea-cotizacion-vacia"><fieldset data-linea><legend>Línea adicional</legend>{% include "compras/_campos_origen.html" with origen=filas.empty_form %}</fieldset></template>
+<button type="button" class="boton boton--secundario" id="agregar-linea-cotizacion" hidden>Agregar especificación</button>
+<p>Marque Eliminar para omitir una fila. Debe guardar al menos una especificación con descripción, cantidad positiva y unidad.</p>
+<button class="boton" type="submit">Crear cotización en borrador</button>
+</form></section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/lineas_cotizacion.js' %}" defer></script>{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}Tipos de cotización{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Tipos de cotización</h1><p>Configure las clases que utiliza la clínica. Desactivar un tipo evita nuevos usos y conserva las cotizaciones existentes.</p>
+<section class="tarjeta"><h2>Catálogo</h2><ul>{% for tipo in tipos %}<li><a href="{% url 'compras:cotizacion_tipo_editar' tipo.pk %}">{{ tipo.nombre }}</a> · {{ tipo.activo|yesno:"Activo,Inactivo" }} · {{ tipo.descripcion }}</li>{% empty %}<li>Sin tipos configurados.</li>{% endfor %}</ul></section>
+<section class="tarjeta"><h2>{% if formulario.instance.pk %}Editar tipo{% else %}Crear tipo{% endif %}</h2><form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Guardar tipo</button>
+{% if formulario.instance.pk %}<a href="{% url 'compras:cotizacion_tipos' %}">Volver al catálogo</a>{% endif %}
+</form></section>
+{% endblock %}

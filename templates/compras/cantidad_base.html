@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Cantidad base de la necesidad{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Cantidad base de la necesidad {{ necesidad.pk }}</h1>
+<p><a href="{% url 'compras:necesidad_detalle' necesidad.pk %}">{{ necesidad.objeto }}</a></p>
+<p>Base actual: {{ base.cantidad|default_if_none:"Pendiente" }} {{ base.unidad }} ({{ base.origen }}).</p>
+<p>Defina una cantidad comparable y su unidad para distribuirla entre proveedores. Si el origen mezcla unidades, indique expresamente la unidad de contratación; no se convierten ni suman unidades distintas. La política D-09 sigue pendiente.</p>
+<p>Cambiar la base exige revisar las decisiones de sus listas en borrador. Si alguna lista ya está cerrada o anulada, la base se conserva.</p>
+<section class="tarjeta"><form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+<button type="submit" class="boton">Guardar cantidad base</button>
+</form></section>
+{% endblock %}

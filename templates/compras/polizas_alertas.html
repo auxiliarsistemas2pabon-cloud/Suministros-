@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}Vigencias de pólizas{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Vigencias de pólizas</h1><p>Se muestran pólizas activas de decisiones vigentes. Los contratos anulados conservan sus evidencias en el historial. Una vigencia futura todavía no acredita cobertura a la fecha consultada.</p>
+<form method="get">{% for campo in filtro %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Consultar</button></form>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Contrato y decisión</th><th>Póliza</th><th>Aseguradora</th><th>Vigencia</th><th>Estado</th></tr></thead><tbody>{% for fila in filas %}<tr><td><a href="{% url 'compras:contrato' fila.poliza.contrato.decision.cotizacion_id fila.poliza.contrato.decision_id %}">{{ fila.poliza.contrato.numero|default:fila.poliza.contrato_id }} · decisión {{ fila.poliza.contrato.decision_id }}</a></td><td>{{ fila.poliza.tipo_nombre }} · {{ fila.poliza.numero }}</td><td>{{ fila.poliza.aseguradora }}</td><td>{{ fila.poliza.vigencia_desde|date:"d/m/Y" }} a {{ fila.poliza.vigencia_hasta|date:"d/m/Y" }}</td><td>{{ fila.etiqueta }} · {{ fila.dias }} días de alerta</td></tr>{% empty %}<tr><td colspan="5">Sin pólizas para estos filtros.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

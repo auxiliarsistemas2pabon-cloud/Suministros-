@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}Comparativo · {{ cotizacion.consecutivo }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Comparativo y decisión · {{ cotizacion.consecutivo }}</h1><p><a href="{% url 'compras:cotizacion_detalle' cotizacion.pk %}">Cotización</a> · <a href="{% url 'compras:verificaciones' cotizacion.pk %}">Revisar verificaciones</a> · <a href="{% url 'compras:proveedor_unico' cotizacion.pk %}">Proveedor único</a> · <a href="{% url 'compras:cotizacion_comparativo_excel' cotizacion.pk %}">Exportar a Excel</a>.</p>
+{% if vigente %}<p class="mensaje mensaje--warning">Se muestra el comparativo conservado en la propuesta. <a href="{% url 'compras:cotizacion_decision' cotizacion.pk vigente.pk %}">Consultar decisión {{ vigente.pk }} · {{ vigente.get_estado_display }}</a>. Para cambiar la selección, anule la decisión y registre otra.</p>{% endif %}
+{% include "compras/_comparativo_tabla.html" %}
+{% if editable %}<section class="tarjeta"><h2>Proponer decisión</h2><p>En Oferta completa seleccione un oferente para todas las especificaciones. En Por línea seleccione un oferente en cada línea. La propuesta debe recibir las aprobaciones configuradas antes de quedar decidida.</p>
+<form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario.hidden_fields %}{{ campo }}{{ campo.errors }}{% endfor %}{% for campo in formulario.visible_fields %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Registrar propuesta para aprobación</button></form></section>{% endif %}
+<section class="tarjeta"><h2>Historial de decisiones</h2><ul>{% for decision in decisiones %}<li><a href="{% url 'compras:cotizacion_decision' cotizacion.pk decision.pk %}">Decisión {{ decision.pk }} · {{ decision.get_estado_display }}</a> · {{ decision.propuesta_por }} · {{ decision.fecha_propuesta|date:"d/m/Y H:i" }}</li>{% empty %}<li>Sin propuestas registradas.</li>{% endfor %}</ul></section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block titulo %}Parámetros{% endblock %}
+
+{% block contenido %}
+{% include "configuracion/_submenu.html" %}
+<div class="encabezado-seccion">
+  <h1>Parámetros</h1>
+</div>
+<p class="texto-suave">Reglas de negocio que la clínica aún no ha confirmado. Su valor se puede cambiar aquí, con motivo; cada cambio queda en la bitácora. Los parámetros no se borran.</p>
+
+{% if parametros %}
+<div class="tabla-contenedor">
+  <table class="tabla">
+    <caption class="visualmente-oculto">Listado de parámetros</caption>
+    <thead>
+      <tr><th scope="col">Decisión</th><th scope="col">Parámetro</th><th scope="col">Valor actual</th><th scope="col">Valor por defecto</th><th scope="col">Última modificación</th><th scope="col">Acciones</th></tr>
+    </thead>
+    <tbody>
+      {% for parametro in parametros %}
+      <tr>
+        <td>{{ parametro.decision|default:"—" }}</td>
+        <td><strong>{{ parametro.nombre }}</strong><div class="ayuda">{{ parametro.descripcion }}</div></td>
+        <td>{% if parametro.tipo == "booleano" %}{{ parametro.valor_tipado|yesno:"Sí,No" }}{% else %}{{ parametro.valor }}{% endif %}</td>
+        <td>{% if parametro.tipo == "booleano" %}{{ parametro.valor_por_defecto_tipado|yesno:"Sí,No" }}{% else %}{{ parametro.valor_por_defecto }}{% endif %}</td>
+        <td>{{ parametro.fecha_modificacion|date:"d/m/Y H:i" }}</td>
+        <td class="tabla__acciones"><a href="{% url 'configuracion:parametro_editar' parametro.pk %}">Editar</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>No hay parámetros registrados.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}Enviar documento{% endblock %}
+{% block contenido %}
+<section class="tarjeta tarjeta--formulario"><h1>Enviar documento</h1><p>El documento quedará pendiente de revisión. Para corregir un envío, presente un documento nuevo; el historial anterior se conserva.</p>
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+<div class="acciones-formulario"><button class="boton" type="submit">Enviar PDF para revisión</button><a href="{% url 'portal:inicio' %}">Volver al portal</a></div></form></section>
+{% endblock %}

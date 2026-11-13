@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}Historial de orden{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Orden {{ orden.pk }} · revisión {{ revision.numero }}</h1><p>{{ revision.actor }} · {{ revision.fecha|date:"d/m/Y H:i" }} · motivo {{ revision.motivo }}.</p><p><a href="{% url 'compras:orden_detalle' orden.pk %}">Volver a la orden</a></p>
+{% include "compras/_foto_orden.html" %}
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block titulo %}Periodos de proyección{% endblock %}
+
+{% block contenido %}
+<section class="tarjeta tarjeta--formulario">
+  <h1>Periodos de proyección</h1>
+  <p class="texto-suave">Abra un periodo para que cada área activa pueda diligenciar su proyección anual.</p>
+  <p class="texto-suave">Los campos marcados con <span class="obligatorio">*</span> son obligatorios.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if formulario.non_field_errors %}<div class="mensaje mensaje--error" role="alert">{{ formulario.non_field_errors|join:" " }}</div>{% endif %}
+    {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <div class="acciones-formulario"><button type="submit" class="boton">Abrir periodo</button></div>
+  </form>
+</section>
+
+<section class="tarjeta">
+  <h2>Periodos existentes</h2>
+  {% if periodos %}
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead><tr><th>Año</th><th>Estado</th><th>Fecha límite</th><th>Proyecciones</th><th>Acciones</th></tr></thead>
+      <tbody>
+      {% for periodo in periodos %}
+        <tr>
+          <td>{{ periodo.anio }}</td>
+          <td>{% if periodo.estado == "abierto" %}<span class="estado estado--activo">Abierto</span>{% else %}<span class="estado estado--aviso">Cerrado</span>{% endif %}</td>
+          <td>{{ periodo.fecha_limite_diligenciamiento|date:"d/m/Y" }}</td>
+          <td>{{ periodo.proyecciones_creadas }}</td>
+          <td>
+            <form method="post" action="{% url 'proyecciones:periodo_estado' periodo.pk %}">
+              {% csrf_token %}
+              <label for="motivo-estado-{{ periodo.pk }}">Motivo</label>
+              <textarea id="motivo-estado-{{ periodo.pk }}" name="motivo" rows="2" required></textarea>
+              <button type="submit" class="boton">{% if periodo.estado == "abierto" %}Cerrar periodo{% else %}Reabrir periodo{% endif %}</button>
+            </form>
+          </td>
+        </tr>
+        {% if periodo.areas_sin_proyeccion %}
+        <tr>
+          <td colspan="5">
+            <strong>Áreas activas sin proyección para {{ periodo.anio }}</strong>
+            <ul class="lista-simple">
+            {% for area in periodo.areas_sin_proyeccion %}
+              <li>
+                {{ area.nombre }} ({{ area.codigo_area }})
+                {% if periodo.estado == "abierto" %}
+                <form method="post" action="{% url 'proyecciones:crear_proyeccion_area' periodo.pk area.pk %}">
+                  {% csrf_token %}
+                  <label for="motivo-{{ periodo.pk }}-{{ area.pk }}">Motivo</label>
+                  <textarea id="motivo-{{ periodo.pk }}-{{ area.pk }}" name="motivo" rows="2" required></textarea>
+                  <button type="submit" class="boton boton--secundario">Crear proyección</button>
+                </form>
+                {% else %}<span class="texto-suave">El periodo está cerrado.</span>{% endif %}
+              </li>
+            {% endfor %}
+            </ul>
+          </td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p>Aún no hay periodos de proyección.</p>{% endif %}
+</section>
+{% endblock %}

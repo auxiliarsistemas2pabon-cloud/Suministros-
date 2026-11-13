@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block titulo %}Ajustar línea{% endblock %}
+
+{% block contenido %}
+<p><a href="{{ volver }}">« Volver al detalle de la proyección</a></p>
+<section class="tarjeta tarjeta--formulario">
+  <h1>Ajustar línea aprobada</h1>
+  <p>{{ proyeccion.area.nombre }} · periodo {{ proyeccion.periodo.anio }} · <strong>{{ linea.producto_servicio }}</strong> ({{ linea.unidad }})</p>
+  <p class="texto-suave">La proyección está aprobada: el valor aprobado se conserva y el ajuste define el valor vigente. La justificación es obligatoria y queda con el ajuste y en la bitácora.</p>
+
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <caption class="visualmente-oculto">Valores aprobados y vigentes de la línea</caption>
+      <thead><tr><th scope="col">Campo</th><th scope="col" class="numero">Aprobado</th><th scope="col" class="numero">Vigente</th></tr></thead>
+      <tbody>
+      {% for fila in filas %}<tr><td>{{ fila.campo|capfirst }}</td><td class="numero">{{ fila.aprobado|default_if_none:"—" }}</td><td class="numero{% if fila.ajustado %} celda-ajustada{% endif %}">{{ fila.vigente|default_if_none:"—" }}</td></tr>{% endfor %}
+      <tr><th scope="row">Total anual</th><td class="numero">{{ linea.total_anual }}</td><td class="numero">{{ linea.total_vigente }}</td></tr>
+      <tr><th scope="row">Costo anual</th><td class="numero">{{ linea.costo_anual|floatformat:"2g" }}</td><td class="numero">{{ linea.costo_vigente|floatformat:"2g" }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Nuevo ajuste</h2>
+  <p class="texto-suave">Los campos marcados con <span class="obligatorio">*</span> son obligatorios.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if formulario.non_field_errors %}<div class="mensaje mensaje--error" role="alert">{{ formulario.non_field_errors|join:" " }}</div>{% endif %}
+    {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <div class="acciones-formulario">
+      <button type="submit" class="boton">Registrar ajuste</button>
+      <a class="boton boton--secundario" href="{{ volver }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+
+{% if ajustes %}
+<section class="tarjeta">
+  <h2>Ajustes de esta línea</h2>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <caption class="visualmente-oculto">Ajustes registrados en la línea</caption>
+      <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Campo</th><th scope="col">Aprobado</th><th scope="col">Antes del ajuste</th><th scope="col">Nuevo</th><th scope="col">Justificación</th><th scope="col">Usuario</th></tr></thead>
+      <tbody>
+      {% for ajuste in ajustes %}<tr><td>{{ ajuste.fecha|date:"d/m/Y H:i" }}</td><td>{{ ajuste.etiqueta_campo }}</td><td>{{ ajuste.valor_aprobado|default_if_none:"—" }}</td><td>{{ ajuste.valor_anterior|default_if_none:"—" }}</td><td>{{ ajuste.valor_nuevo|default_if_none:"—" }}</td><td>{{ ajuste.justificacion }}</td><td>{{ ajuste.usuario.nombre }}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

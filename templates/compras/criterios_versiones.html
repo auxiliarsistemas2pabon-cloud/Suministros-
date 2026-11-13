@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Criterios de elegibles{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Criterios de elegibles FR-GDS-20</h1>
+<p>Edite una versión en borrador y publíquela con su vigencia cuando esté lista. Los pesos deben sumar 100 %. Para cambiar criterios publicados, copie una versión nueva.</p>
+<p>La versión inicial contiene los criterios administrativos (30 %), precio (20 %), valor agregado (20 %) y certificaciones (30 %). La regla de cálculo D-07 requiere aprobación de la clínica.</p>
+<p><a href="{% url 'configuracion:parametros' %}">Configurar escala y método de cálculo (D-07)</a></p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Versión</th><th>Estado</th><th>Vigencia</th><th>Copiar</th></tr></thead><tbody>
+{% for version in versiones %}<tr><td><a href="{% url 'compras:version_criterios_detalle' version.pk %}">Versión {{ version.numero }}</a></td><td>{{ version.get_estado_display }}</td><td>{{ version.desde|date:"d/m/Y"|default:"Sin publicar" }} · {{ version.hasta|date:"d/m/Y"|default:"Sin límite" }}</td><td>
+<form method="post" action="{% url 'compras:version_criterios_copiar' version.pk %}">{% csrf_token %}<label for="motivo_copia_{{ version.pk }}">Motivo de la copia</label><input id="motivo_copia_{{ version.pk }}" name="motivo" required><button class="boton boton--secundario" type="submit">Copiar a borrador</button></form>
+</td></tr>{% empty %}<tr><td colspan="4">Sin versiones.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

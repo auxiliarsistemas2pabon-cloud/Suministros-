@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Confirmación histórica{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Confirmación {{ revision.numero }} · {{ foto.tipo }}</h1><p>{{ foto.razon_social }} · NIT {{ foto.nit }} · oferta revisión {{ foto.oferta_revision }}.</p>
+<p>Estado: {{ foto.estado }} · fecha {{ foto.fecha }} · confirmó {{ foto.verificado_por }}.</p><p>{{ foto.observacion|linebreaksbr }}</p><p>Motivo: {{ revision.motivo }} · registrado {{ revision.fecha|date:"d/m/Y H:i" }}.</p>
+{% if revision.pdf_id %}<a href="{% url 'compras:verificacion_pdf' registro.oferta.cotizacion_id registro.oferta_id registro.pk revision.pdf_id %}">Descargar evidencia de esta confirmación</a>{% endif %}
+<p><a href="{% url 'compras:verificacion_detalle' registro.oferta.cotizacion_id registro.oferta_id registro.pk %}">Volver a la verificación actual</a></p>
+{% include "compras/_propuesta_verificacion.html" with propuesta=foto.propuesta conservada=True %}
+{% endblock %}

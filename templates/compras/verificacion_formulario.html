@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Confirmar verificación{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>{{ tipo.nombre }} · {{ oferta.razon_social }}</h1><p>NIT {{ oferta.nit }} · oferta revisión {{ oferta.revision }} · <a href="{% url 'compras:verificaciones' oferta.cotizacion_id %}">Ver matriz de oferentes</a></p>
+{% if propuesta %}<section class="tarjeta"><h2>Consultar fecha documental</h2><form method="get">{% for campo in filtro %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton boton--secundario" type="submit">Consultar propuesta a esta fecha</button></form></section>{% include "compras/_propuesta_verificacion.html" %}{% endif %}
+{% if actual %}<p>Última confirmación: {{ actual.estado_nombre }} · {{ actual.fecha|date:"d/m/Y" }} · {{ actual.verificado_por }}. <a href="{% url 'compras:verificacion_detalle' oferta.cotizacion_id oferta.pk actual.pk %}">Consultar evidencia e historial</a>.</p>{% endif %}
+<section class="tarjeta"><h2>Confirmación del responsable</h2><p>Seleccione el resultado de la revisión realizada y adjunte soporte si corresponde. Si se aparta de la propuesta documental, explique la diferencia en la observación.</p>
+<form method="post" action="{{ accion }}" enctype="multipart/form-data" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+{% for campo in formulario.hidden_fields %}{{ campo }}{{ campo.errors }}{% endfor %}
+{% for campo in formulario.visible_fields %}{% include "configuracion/_campo.html" %}{% endfor %}
+<button class="boton" type="submit">Confirmar verificación</button>
+</form></section>
+{% endblock %}

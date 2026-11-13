@@ -1,0 +1,14 @@
+<form method="get" class="filtros" role="search" aria-label="Filtrar">
+  {% for campo in filtro %}
+  <div class="filtros__campo">
+    <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+    {{ campo }}
+    {{ campo.errors }}
+  </div>
+  {% endfor %}
+  <div class="filtros__acciones">
+    <button type="submit" class="boton">Filtrar</button>
+    <a class="boton boton--secundario" href="{{ request.path }}">Limpiar</a>
+  </div>
+</form>
+{{ filtro.non_field_errors }}

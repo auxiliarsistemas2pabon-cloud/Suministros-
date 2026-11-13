@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Criterios · versión {{ version.numero }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Criterios FR-GDS-20 · versión {{ version.numero }}</h1>
+<p>{{ version.get_estado_display }} · {{ version.desde|date:"d/m/Y"|default:"Sin publicar" }} · {{ version.hasta|date:"d/m/Y"|default:"Sin fecha final" }}</p>
+{{ formulario.non_field_errors }}
+{{ publicacion.non_field_errors }}
+{% if version.estado == "borrador" %}
+<section class="tarjeta"><h2>Editar criterios</h2>
+<p>Los pesos deben sumar exactamente 100 %. Marque Eliminar para omitir una fila; deje vacías las filas adicionales que no necesite. Guarde los cambios antes de publicar.</p>
+<form method="post" novalidate>{% csrf_token %}
+  {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+  {{ filas.management_form }}{{ filas.non_form_errors }}
+  {% for origen in filas %}<fieldset><legend>Criterio {{ forloop.counter }}</legend>{{ origen.non_field_errors }}{% include "compras/_campos_origen.html" %}</fieldset>{% endfor %}
+  <button type="submit" class="boton">Guardar criterios</button>
+</form></section>
+<section class="tarjeta"><h2>Publicar los criterios guardados</h2>
+<p>Publicar conserva los nombres y pesos. Una sucesora cierra la versión anterior abierta el día previo a su inicio; las listas que ya la usaban conservan su versión.</p>
+<form method="post" action="{% url 'compras:version_criterios_publicar' version.pk %}" novalidate>{% csrf_token %}
+  {% for campo in publicacion %}{% include "configuracion/_campo.html" %}{% endfor %}
+  <button type="submit" class="boton">Publicar versión</button>
+</form></section>
+{% else %}
+<section class="tarjeta"><h2>Criterios conservados</h2>
+<p>{{ version.notas|linebreaksbr }}</p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Criterio</th><th>Peso %</th></tr></thead><tbody>{% for criterio in version.criterios.all %}<tr><td>{{ criterio.nombre }}</td><td>{{ criterio.peso }}</td></tr>{% endfor %}</tbody></table></div>
+<p><a href="{% url 'compras:versiones_criterios' %}">Volver para copiar una versión nueva</a></p></section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}Editar borrador de orden{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Editar orden {{ orden.pk }} · borrador</h1><p><a href="{% url 'compras:orden_detalle' orden.pk %}">Volver a la orden</a></p><p>Los cambios conservan el valor adjudicado original y requieren motivo. Puede indicar descuentos en dinero y seleccionar tarifas y retenciones. Los totales se calculan al guardar. Mantiene las reglas guardadas salvo que solicite aplicar los parámetros actuales.</p><p>Reglas guardadas: descuento {% if orden.reglas_importes.orden_descuento == "antes_impuesto" %}antes del impuesto{% else %}después del impuesto{% endif %}; redondeo {% if orden.reglas_importes.nivel_redondeo == "linea" %}por línea{% else %}al total{% endif %}, {{ orden.reglas_importes.decimales }} decimales. Política pendiente de validar con financiera.</p>
+<form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+{{ filas.management_form }}{{ filas.non_form_errors }}{% for fila in filas %}<section class="tarjeta"><h2>Línea {{ forloop.counter }}</h2>{{ fila.non_field_errors }}{% for campo in fila.hidden_fields %}{{ campo }}{{ campo.errors }}{% endfor %}{% for campo in fila.visible_fields %}{% include "configuracion/_campo.html" %}{% endfor %}</section>{% endfor %}<button class="boton" type="submit">Guardar cambios con historial</button></form>
+{% endblock %}

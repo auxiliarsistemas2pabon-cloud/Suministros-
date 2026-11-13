@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block titulo %}Bitácora{% endblock %}
+
+{% block contenido %}
+<div class="encabezado-seccion">
+  <h1>Bitácora</h1>
+</div>
+<p class="texto-suave">Historial de cambios: quién, cuándo, qué acción, valores anterior y nuevo, y motivo. Los registros no se pueden modificar ni borrar. Las fechas están en hora de Bogotá.</p>
+{% include "configuracion/_filtro.html" %}
+{% if filtro.errors %}<div class="mensaje mensaje--error" role="alert">Revise los filtros: {% for campo in filtro %}{% for error in campo.errors %}{{ campo.label }}: {{ error }} {% endfor %}{% endfor %}</div>{% endif %}
+
+{% if pagina.object_list %}
+<div class="tabla-contenedor">
+  <table class="tabla tabla-bitacora">
+    <caption class="visualmente-oculto">Registros de la bitácora</caption>
+    <thead>
+      <tr><th scope="col">Fecha y hora</th><th scope="col">Actor</th><th scope="col">Acción</th><th scope="col">Objeto</th><th scope="col">Cambios (anterior → nuevo)</th><th scope="col">Motivo</th><th scope="col">IP</th></tr>
+    </thead>
+    <tbody>
+      {% for registro in pagina %}
+      <tr>
+        <td>{{ registro.fecha|date:"d/m/Y H:i:s" }}</td>
+        <td>{% if registro.actor %}{{ registro.actor.nombre }}<div class="ayuda">{{ registro.actor_texto }}</div>{% else %}{{ registro.actor_texto|default:"Sistema" }}{% endif %}</td>
+        <td>{{ registro.accion }}</td>
+        <td>{{ registro.objeto_texto|default:"—" }}<div class="ayuda">{{ registro.tipo_legible }}{% if registro.objeto_id %} · id {{ registro.objeto_id }}{% endif %}</div></td>
+        <td>{% if registro.cambios %}<ul class="lista-cambios">{% for cambio in registro.cambios %}<li><strong>{{ cambio.campo }}:</strong> {{ cambio.anterior }} → {{ cambio.nuevo }}</li>{% endfor %}</ul>{% else %}—{% endif %}</td>
+        <td>{{ registro.motivo|default:"—" }}</td>
+        <td>{{ registro.ip|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "configuracion/_paginacion.html" %}
+{% else %}
+<p>No hay registros que coincidan con el filtro.</p>
+{% endif %}
+{% endblock %}

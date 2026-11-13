@@ -1,0 +1,27 @@
+# Base de datos PostgreSQL 18 para desarrollo.
+# Toma las variables del archivo .env de esta carpeta.
+# Uso: docker compose up -d
+
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Defina POSTGRES_DB en .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER en .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env}
+    ports:
+      # Solo accesible desde este equipo.
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      # Desde PostgreSQL 18 la imagen guarda los datos en /var/lib/postgresql/18/docker,
+      # por eso el volumen se monta en /var/lib/postgresql.
+      - datos_postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  datos_postgres:

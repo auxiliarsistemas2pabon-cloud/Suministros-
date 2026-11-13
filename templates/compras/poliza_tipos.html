@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}Tipos de póliza{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Tipos de póliza</h1><p>Catálogo editable; la clínica define los amparos exigidos. Los registros anteriores conservan el nombre usado al guardar.</p><ul>{% for tipo in tipos %}<li><a href="{% url 'compras:poliza_tipo_editar' tipo.pk %}">{{ tipo.nombre }}</a> · {{ tipo.activo|yesno:"Activo,Inactivo" }} · alerta {% if tipo.usar_alerta_general %}general{% else %}{{ tipo.dias_alerta }} días{% endif %}</li>{% endfor %}</ul>
+<form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Guardar tipo</button>{% if formulario.instance.pk %}<a href="{% url 'compras:poliza_tipos' %}">Volver al catálogo</a>{% endif %}</form>
+{% endblock %}

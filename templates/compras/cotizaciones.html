@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Cotizaciones{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Cotizaciones · FR-GDS-28</h1>
+<p><a class="boton" href="{% url 'compras:cotizacion_nueva' %}">Nueva cotización manual</a></p>
+{% include "configuracion/_filtro.html" %}
+<p><a href="{% querystring formato="excel" %}">Exportar estos resultados a Excel</a></p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Consecutivo</th><th>Objeto</th><th>Fecha</th><th>Área</th><th>Responsable</th><th>Tipo</th><th>Estado</th></tr></thead><tbody>
+{% for cotizacion in pagina %}<tr><td><a href="{% url 'compras:cotizacion_detalle' cotizacion.pk %}">{{ cotizacion.consecutivo }}</a></td><td>{{ cotizacion.objeto|truncatechars:90 }}</td><td>{{ cotizacion.fecha|date:"d/m/Y" }}</td><td>{{ cotizacion.area }}</td><td>{{ cotizacion.responsable }}</td><td>{{ cotizacion.tipo }}</td><td>{{ cotizacion.get_estado_display }}</td></tr>{% empty %}<tr><td colspan="7">Sin cotizaciones registradas.</td></tr>{% endfor %}
+</tbody></table></div>{% include "configuracion/_paginacion.html" %}
+{% endblock %}

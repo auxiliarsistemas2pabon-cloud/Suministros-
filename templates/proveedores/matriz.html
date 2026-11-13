@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Matrices FR-GDS-14{% endblock %}
+{% block contenido %}{% include "proveedores/_submenu.html" %}<h1>Matrices FR-GDS-14</h1>
+<nav class="submenu">{% for item in versiones %}<a href="{% url 'proveedores:matriz_detalle' item.pk %}">{{ item }}</a>{% endfor %}</nav>
+{% if version %}<section class="tarjeta"><h2>{{ version }}</h2><p>Vigencia: {{ version.desde|date:"d/m/Y"|default:"Sin publicar" }} a {{ version.hasta|date:"d/m/Y"|default:"Sin fecha final" }}. {{ version.notas }}</p>
+<p><a href="{% url 'configuracion:catalogos_proveedores' 'requisitos' %}?version={{ version.pk }}">Consultar requisitos de esta versión</a> · <a href="{% url 'configuracion:catalogos_proveedores' 'pesos' %}?version={{ version.pk }}">Consultar pesos</a></p>
+<table class="tabla"><thead><tr><th>Requisito</th><th>Grupo</th><th>Categoría</th><th>Peso</th></tr></thead><tbody>{% for peso in pesos %}<tr><td>{{ peso.requisito }}</td><td>{{ peso.requisito.get_grupo_display }}</td><td>{{ peso.categoria }}</td><td>{{ peso.valor }}</td></tr>{% empty %}<tr><td colspan="4">Complete los requisitos y pesos antes de publicar.</td></tr>{% endfor %}</tbody></table>
+{% if version.estado == "borrador" %}<h3>Publicar versión</h3><p>La publicación bloquea los requisitos y pesos. La vigencia abierta anterior se cerrará el día previo.</p><form method="post">{% csrf_token %}{{ publicar.non_field_errors }}{% for campo in publicar %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" name="accion" value="publicar">Publicar</button></form>{% endif %}
+<h3>Copiar a un borrador nuevo</h3><form method="post">{% csrf_token %}{{ copiar.non_field_errors }}{% for campo in copiar %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" name="accion" value="copiar">Crear copia</button></form></section>{% endif %}
+{% endblock %}

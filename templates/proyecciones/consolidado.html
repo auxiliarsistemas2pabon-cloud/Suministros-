@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block titulo %}Consolidado de proyecciones{% endblock %}
+
+{% block contenido %}
+<div class="encabezado-seccion">
+  <h1>Consolidado de proyecciones</h1>
+  <a class="boton" href="{% url 'proyecciones:consolidado_exportar' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">Exportar a Excel</a>
+</div>
+<p class="texto-suave">Totales por año y área de las proyecciones del filtro. «Ajustado» usa los valores vigentes: el último ajuste posterior a la aprobación o, si no hay, el valor aprobado. Montos en pesos.</p>
+{% include "configuracion/_filtro.html" %}
+<p class="texto-suave">{{ descripcion_filtro }}</p>
+
+{% if filas %}
+<div class="tabla-contenedor">
+  <table class="tabla tabla-lineas">
+    <caption class="visualmente-oculto">Consolidado por año y área</caption>
+    <thead>
+      <tr><th scope="col">Año</th><th scope="col">Área</th><th scope="col">Estado</th><th scope="col" class="numero">Líneas</th><th scope="col" class="numero">Ene</th><th scope="col" class="numero">Feb</th><th scope="col" class="numero">Mar</th><th scope="col" class="numero">Abr</th><th scope="col" class="numero">May</th><th scope="col" class="numero">Jun</th><th scope="col" class="numero">Jul</th><th scope="col" class="numero">Ago</th><th scope="col" class="numero">Sep</th><th scope="col" class="numero">Oct</th><th scope="col" class="numero">Nov</th><th scope="col" class="numero">Dic</th><th scope="col" class="numero">Total anual</th><th scope="col" class="numero">Costo</th><th scope="col" class="numero">Cantidad autorizada</th><th scope="col" class="numero">Cantidad ajustada</th><th scope="col" class="numero">Total anual ajustado</th><th scope="col" class="numero">Costo ajustado</th></tr>
+    </thead>
+    <tbody>
+      {% for fila in filas %}
+      <tr>
+        <td>{{ fila.anio }}</td>
+        <td><a href="{% url 'proyecciones:revision_detalle' fila.proyeccion.pk %}">{{ fila.area }}</a> ({{ fila.codigo_area }})</td>
+        <td>{% include "proyecciones/_estado_proyeccion.html" with estado=fila.proyeccion.estado %}</td>
+        <td class="numero">{{ fila.numero_lineas }}</td>
+        {% for cantidad in fila.meses %}<td class="numero">{{ cantidad|floatformat:"0g" }}</td>{% endfor %}
+        <td class="numero">{{ fila.total_anual|floatformat:"0g" }}</td>
+        <td class="numero">$ {{ fila.costo|floatformat:"2g" }}</td>
+        <td class="numero">{% if fila.cantidad_autorizada is None %}—{% else %}{{ fila.cantidad_autorizada|floatformat:"0g" }}{% endif %}</td>
+        <td class="numero">{% if fila.cantidad_ajustada is None %}—{% else %}{{ fila.cantidad_ajustada|floatformat:"0g" }}{% endif %}</td>
+        <td class="numero">{{ fila.total_ajustado|floatformat:"0g" }}</td>
+        <td class="numero">$ {{ fila.costo_ajustado|floatformat:"2g" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th scope="row" colspan="3">Total del filtro</th>
+        <td class="numero"><strong>{{ total.numero_lineas }}</strong></td>
+        {% for cantidad in total.meses %}<td class="numero"><strong>{{ cantidad|floatformat:"0g" }}</strong></td>{% endfor %}
+        <td class="numero"><strong>{{ total.total_anual|floatformat:"0g" }}</strong></td>
+        <td class="numero"><strong>$ {{ total.costo|floatformat:"2g" }}</strong></td>
+        <td class="numero"><strong>{% if total.cantidad_autorizada is None %}—{% else %}{{ total.cantidad_autorizada|floatformat:"0g" }}{% endif %}</strong></td>
+        <td class="numero"><strong>{% if total.cantidad_ajustada is None %}—{% else %}{{ total.cantidad_ajustada|floatformat:"0g" }}{% endif %}</strong></td>
+        <td class="numero"><strong>{{ total.total_ajustado|floatformat:"0g" }}</strong></td>
+        <td class="numero"><strong>$ {{ total.costo_ajustado|floatformat:"2g" }}</strong></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% else %}
+<p>No hay proyecciones que coincidan con el filtro.</p>
+{% endif %}
+{% endblock %}

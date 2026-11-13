@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block titulo %}Ingresar{% endblock %}
+
+{% block contenido %}
+<section class="tarjeta tarjeta--estrecha">
+  <h1>Ingresar al sistema</h1>
+  <p>Escriba su correo y su contraseña.</p>
+  <p>Si usted es un proveedor nuevo, puede <a href="{% url 'portal:registro' %}">registrarse en el portal</a>.</p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="mensaje mensaje--error" role="alert">{{ form.non_field_errors|join:" " }}</div>
+    {% endif %}
+
+    <div class="campo">
+      <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+      {{ form.username }}
+      {{ form.username.errors }}
+    </div>
+
+    <div class="campo">
+      <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+      {{ form.password }}
+      {{ form.password.errors }}
+    </div>
+
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="boton">Ingresar</button>
+  </form>
+</section>
+{% endblock %}

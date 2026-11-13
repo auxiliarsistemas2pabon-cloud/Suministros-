@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Revisión del envío {{ envio.pk }}{% endblock %}
+{% block contenido %}
+{% include "proveedores/_submenu.html" %}
+<section class="tarjeta"><h1>Envío {{ envio.pk }}</h1>
+<p><a href="{% url 'proveedores:detalle' envio.proveedor_id %}">{{ envio.proveedor.razon_social }}</a> · NIT {{ envio.proveedor.nit_formateado }}</p>
+<dl class="ficha"><dt>Tipo</dt><dd>{{ envio.tipo }}</dd><dt>Expedición</dt><dd>{{ envio.fecha_expedicion|date:"d/m/Y" }}</dd><dt>Vencimiento</dt><dd>{{ envio.fecha_vencimiento|date:"d/m/Y"|default:"—" }}</dd><dt>Estado</dt><dd>{{ envio.get_estado_display }}</dd><dt>Registrado por</dt><dd>{{ envio.enviado_por.nombre }} · {{ envio.fecha_envio|date:"d/m/Y H:i" }}</dd><dt>Archivo original</dt><dd>{{ envio.nombre_archivo }}</dd></dl>
+{% if envio.archivo %}<p><a class="boton boton--secundario" href="{% url 'proveedores:envio_descargar' envio.pk %}">Descargar PDF para revisión</a></p>{% else %}<p>El PDF no se conserva. El historial de este envío sigue disponible.</p>{% endif %}
+{{ formulario.non_field_errors }}
+{% if pendiente %}
+<p>Al aceptar, el documento se incorporará a la ficha. Al descartar, {% if conservar_descartado %}se conservará el PDF{% else %}se eliminará el PDF después de confirmar, si no tiene otras referencias{% endif %}, según el parámetro de retención vigente.</p>
+<form method="post" action="{% url 'proveedores:envio_aceptar' envio.pk %}">{% csrf_token %}
+{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+<div class="acciones-formulario"><button class="boton" type="submit">Aceptar documento</button><button class="boton boton--secundario" type="submit" formaction="{% url 'proveedores:envio_descartar' envio.pk %}">Descartar envío</button></div></form>
+{% else %}<p>Revisado por {{ envio.revisado_por.nombre }} el {{ envio.fecha_revision|date:"d/m/Y H:i" }}. Motivo: {{ envio.motivo }}</p>{% if envio.documento_id %}<p>Documento incorporado n.º {{ envio.documento_id }}. <a href="{% url 'proveedores:detalle' envio.proveedor_id %}">Consultar la ficha</a></p>{% endif %}{% endif %}
+<p><a href="{% url 'proveedores:bandeja' %}">Volver a la bandeja</a></p></section>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Verificación {{ registro.pk }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>{{ registro.tipo_nombre }} · {{ registro.oferta.razon_social }}</h1><p>NIT {{ registro.oferta.nit }} · <a href="{% url 'compras:oferta_detalle' registro.oferta.cotizacion_id registro.oferta_id %}">Oferta</a> · <a href="{% url 'compras:verificaciones' registro.oferta.cotizacion_id %}">Matriz</a>.</p>
+<section class="tarjeta"><h2>{{ registro.estado_nombre }}</h2><p>Fecha {{ registro.fecha|date:"d/m/Y" }} · confirmó {{ registro.verificado_por }} · {{ registro.fecha_registro|date:"d/m/Y H:i" }}.</p>
+<p>Oferta revisada: revisión {{ registro.oferta_revision }}. {% if registro.oferta_revision != registro.oferta.revision %}Pendiente de reconfirmar: la oferta actual es revisión {{ registro.oferta.revision }}.{% endif %}</p>
+<p>Obligatoriedad al confirmar: {{ registro.tipo_obligatoria|yesno:"Sí,No" }}. Observación: {{ registro.observacion|default:"Sin observación"|linebreaksbr }}</p>
+{% if registro.pdf_id %}<a href="{% url 'compras:verificacion_pdf' registro.oferta.cotizacion_id registro.oferta_id registro.pk registro.pdf_id %}">Descargar {{ registro.pdf.nombre_archivo }}</a>{% endif %}
+{% if registro.tipo.activo %}{% if registro.oferta.cotizacion.estado == "borrador" or registro.oferta.cotizacion.estado == "en_comparacion" %}<p><a class="boton" href="{% url 'compras:verificacion_guardar' registro.oferta.cotizacion_id registro.oferta_id registro.tipo_id %}">Revisar y actualizar confirmación</a></p>{% endif %}{% endif %}</section>
+{% include "compras/_propuesta_verificacion.html" with propuesta=registro.propuesta conservada=True %}
+<section class="tarjeta"><h2>Historial</h2><ul>{% for revision in revisiones %}<li><a href="{% url 'compras:verificacion_revision' registro.oferta.cotizacion_id registro.oferta_id registro.pk revision.pk %}">Confirmación {{ revision.numero }}</a> · {{ revision.actor }} · {{ revision.fecha|date:"d/m/Y H:i" }} · {{ revision.motivo }}{% if revision.pdf_id %} · <a href="{% url 'compras:verificacion_pdf' registro.oferta.cotizacion_id registro.oferta_id registro.pk revision.pdf_id %}">Evidencia conservada</a>{% endif %}</li>{% endfor %}</ul></section>
+{% endblock %}

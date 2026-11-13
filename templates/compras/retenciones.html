@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}Retenciones de órdenes{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Retenciones de órdenes</h1><p>Configure porcentajes y bases según la política validada por financiera. No hay tasas precargadas. Las órdenes conservan las retenciones seleccionadas y solo actualizan sus porcentajes mediante una acción explícita.</p>
+<section class="tarjeta"><h2>Catálogo</h2><ul>{% for r in retenciones %}<li><a href="{% url 'compras:retencion_editar' r.pk %}">{{ r.nombre }}</a> · {{ r.porcentaje }} % · {{ r.get_base_calculo_display }} · mínimo {{ r.base_minima|default_if_none:"Sin mínimo" }} · {{ r.activo|yesno:"Activa,Inactiva" }}</li>{% empty %}<li>No hay retenciones configuradas.</li>{% endfor %}</ul></section>
+<section class="tarjeta"><h2>{% if formulario.instance.pk %}Editar retención{% else %}Crear retención{% endif %}</h2><form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Guardar retención</button> <a href="{% url 'compras:retenciones' %}">Ver catálogo</a></form></section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Verificaciones de oferentes{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Verificaciones · {{ cotizacion.consecutivo }}</h1><p><a href="{% url 'compras:cotizacion_detalle' cotizacion.pk %}">Volver a la cotización</a></p>
+<p><a href="{% url 'compras:verificacion_catalogo' 'tipos' %}">Configurar tipos y obligatoriedad</a> · <a href="{% url 'compras:verificacion_catalogo' 'estados' %}">Configurar estados</a></p>
+<p>Las verificaciones requieren confirmación de un responsable. Los catálogos iniciales son provisionales; no se cargan obligaciones oficiales. Propuestas documentales a {{ matriz.referencia|date:"d/m/Y" }}.</p>
+{% if matriz.alertas %}<div class="mensaje mensaje--warning" role="status">{{ matriz.alertas }} verificación{{ matriz.alertas|pluralize }} obligatoria{{ matriz.alertas|pluralize }} en No, Pendiente o pendiente de reconfirmar.</div>{% endif %}
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Oferente</th>{% for tipo in matriz.tipos %}<th>{{ tipo.nombre }}{% if tipo.obligatoria and tipo.activo %} · Obligatoria{% endif %}{% if not tipo.activo %} · Inactiva{% endif %}</th>{% endfor %}</tr></thead><tbody>
+{% for fila in matriz.filas %}<tr><th scope="row"><a href="{% url 'compras:oferta_detalle' cotizacion.pk fila.oferta.pk %}">{{ fila.oferta.razon_social }}</a><br>NIT {{ fila.oferta.nit }} · oferta revisión {{ fila.oferta.revision }}</th>
+{% for celda in fila.celdas %}<td>{% if celda.alerta %}<p class="mensaje mensaje--warning">Requiere revisión obligatoria</p>{% endif %}
+{% if celda.registro %}<p><a href="{% url 'compras:verificacion_detalle' cotizacion.pk fila.oferta.pk celda.registro.pk %}">{{ celda.registro.estado_nombre }}</a> · {{ celda.registro.fecha|date:"d/m/Y" }}</p><p>Confirmó {{ celda.registro.verificado_por }} · oferta revisión {{ celda.registro.oferta_revision }}.</p>{% if celda.desactualizada %}<p>Pendiente de reconfirmar: cambió la oferta.</p>{% endif %}{% else %}<p>Pendiente de verificar · Sin confirmación registrada.</p>{% endif %}
+{% if celda.propuesta %}<p>Propuesta documental actual: {{ celda.propuesta.etiqueta }}. Requiere revisión del responsable.</p>{% endif %}
+{% if celda.tipo.activo %}{% if cotizacion.estado == "borrador" or cotizacion.estado == "en_comparacion" %}<a href="{% url 'compras:verificacion_guardar' cotizacion.pk fila.oferta.pk celda.tipo.pk %}">Revisar y confirmar</a>{% endif %}{% endif %}
+</td>{% endfor %}</tr>{% empty %}<tr><td>Registre ofertas antes de confirmar sus verificaciones.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

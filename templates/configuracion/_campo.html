@@ -1,0 +1,21 @@
+{% if campo.widget_type == "radioselect" or campo.widget_type == "checkboxselectmultiple" %}
+<fieldset class="campo campo--grupo{% if campo.errors %} campo--error{% endif %}" id="campo-{{ campo.name }}">
+  <legend>{{ campo.label }}{% if campo.field.required %} <span class="obligatorio" aria-hidden="true">*</span>{% endif %}</legend>
+  {{ campo.errors }}
+  <div class="opciones">{{ campo }}</div>
+  {% if campo.help_text %}<div class="ayuda">{{ campo.help_text|safe }}</div>{% endif %}
+</fieldset>
+{% elif campo.widget_type == "checkbox" %}
+<div class="campo campo--casilla{% if campo.errors %} campo--error{% endif %}" id="campo-{{ campo.name }}">
+  {{ campo.errors }}
+  <label for="{{ campo.id_for_label }}">{{ campo }} {{ campo.label }}</label>
+  {% if campo.help_text %}<div class="ayuda">{{ campo.help_text|safe }}</div>{% endif %}
+</div>
+{% else %}
+<div class="campo{% if campo.errors %} campo--error{% endif %}" id="campo-{{ campo.name }}">
+  <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} <span class="obligatorio" aria-hidden="true">*</span>{% endif %}</label>
+  {{ campo }}
+  {{ campo.errors }}
+  {% if campo.help_text %}<div class="ayuda">{{ campo.help_text|safe }}</div>{% endif %}
+</div>
+{% endif %}

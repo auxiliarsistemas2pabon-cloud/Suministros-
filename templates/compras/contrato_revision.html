@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}Historial contractual{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Revisión contractual {{ revision.numero }}</h1><p>Guardó {{ revision.actor }} el {{ revision.fecha|date:"d/m/Y H:i" }} · motivo {{ revision.motivo }}.</p>
+<p><a href="{% url 'compras:contrato' revision.contrato.decision.cotizacion_id revision.contrato.decision_id %}">Volver al contrato</a></p>
+{% include "compras/_foto_contrato.html" with cotizacion_pk=revision.contrato.decision.cotizacion_id decision_pk=revision.contrato.decision_id %}
+{% endblock %}

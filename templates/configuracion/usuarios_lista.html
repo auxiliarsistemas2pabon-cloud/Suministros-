@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block titulo %}Usuarios{% endblock %}
+
+{% block contenido %}
+{% include "configuracion/_submenu.html" %}
+<div class="encabezado-seccion">
+  <h1>Usuarios</h1>
+  <a class="boton" href="{% url 'configuracion:usuario_nuevo' %}">Nuevo usuario</a>
+</div>
+{% include "configuracion/_filtro.html" %}
+
+{% if pagina.object_list %}
+<div class="tabla-contenedor">
+  <table class="tabla">
+    <caption class="visualmente-oculto">Listado de usuarios</caption>
+    <thead>
+      <tr><th scope="col">Nombre</th><th scope="col">Correo</th><th scope="col">Rol</th><th scope="col">Área</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr>
+    </thead>
+    <tbody>
+      {% for usuario in pagina %}
+      <tr>
+        <td>{{ usuario.nombre }}{% if usuario.pk == user.pk %} <span class="texto-suave">(usted)</span>{% endif %}</td>
+        <td>{{ usuario.correo }}</td>
+        <td>{{ usuario.get_rol_display }}</td>
+        <td>{{ usuario.area.nombre|default:"—" }}</td>
+        <td>{% include "configuracion/_estado.html" with activo=usuario.activo %}{% if usuario.debe_cambiar_clave %} <span class="estado estado--aviso">Debe cambiar la clave</span>{% endif %}</td>
+        <td class="tabla__acciones">
+          {% if usuario.gestionable %}
+          <a href="{% url 'configuracion:usuario_editar' usuario.pk %}">Editar</a>
+          {% if usuario.pk != user.pk %}
+          <a href="{% url 'configuracion:usuario_estado' usuario.pk %}">{% if usuario.activo %}Desactivar{% else %}Activar{% endif %}</a>
+          <a href="{% url 'configuracion:usuario_restablecer_clave' usuario.pk %}">Restablecer clave</a>
+          {% endif %}
+          {% else %}
+          <span class="texto-suave">Solo un desarrollador puede modificarlo</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "configuracion/_paginacion.html" %}
+{% else %}
+<p>No hay usuarios que coincidan con el filtro.</p>
+{% endif %}
+{% endblock %}

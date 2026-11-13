@@ -1,0 +1,17 @@
+{% with nombre=request.resolver_match.url_name %}
+<nav class="submenu" aria-label="Secciones de configuración">
+  <a href="{% url 'configuracion:inicio' %}"{% if nombre == "inicio" %} aria-current="page"{% endif %}>Panel</a>
+  <a href="{% url 'configuracion:areas' %}"{% if "area" in nombre %} aria-current="page"{% endif %}>Áreas</a>
+  <a href="{% url 'configuracion:unidades' %}"{% if "unidad" in nombre %} aria-current="page"{% endif %}>Unidades de medida</a>
+  <a href="{% url 'configuracion:productos' %}"{% if "producto" in nombre %} aria-current="page"{% endif %}>Productos sugeridos</a>
+  <a href="{% url 'configuracion:usuarios' %}"{% if "usuario" in nombre %} aria-current="page"{% endif %}>Usuarios</a>
+  <a href="{% url 'configuracion:parametros' %}"{% if "parametro" in nombre %} aria-current="page"{% endif %}>Parámetros</a>
+  <a href="{% url 'configuracion:catalogos_proveedores' 'categorias' %}"{% if "catalogo" in nombre %} aria-current="page"{% endif %}>Catálogos de proveedores</a>
+  <a href="{% url 'compras:origenes' %}">Orígenes de necesidades</a>
+  <a href="{% url 'compras:cotizacion_tipos' %}">Tipos de cotización</a>
+  <a href="{% url 'compras:oferta_tarifas' %}">Tarifas de impuesto</a>
+  <a href="{% url 'compras:verificacion_catalogo' 'tipos' %}">Verificaciones de oferentes</a>
+  <a href="{% url 'compras:proveedor_unico_causales' %}">Causales de proveedor único</a>
+  <a href="{% url 'compras:poliza_tipos' %}">Tipos de póliza</a>
+</nav>
+{% endwith %}

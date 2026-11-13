@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block titulo %}{% if activar %}Activar{% else %}Desactivar{% endif %} {{ objeto }}{% endblock %}
+
+{% block contenido %}
+{% include "configuracion/_submenu.html" %}
+<section class="tarjeta tarjeta--formulario">
+  <h1>{% if activar %}Activar{% else %}Desactivar{% endif %} {{ tipo }}</h1>
+  <p><strong>{{ objeto }}</strong></p>
+
+  {% if bloqueo %}
+  <div class="mensaje mensaje--error" role="alert">{{ bloqueo }}</div>
+  <a class="boton boton--secundario" href="{{ volver }}">Volver</a>
+  {% else %}
+  {% if nota %}<p class="texto-suave">{{ nota }}</p>{% endif %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if formulario.non_field_errors %}
+    <div class="mensaje mensaje--error" role="alert">{{ formulario.non_field_errors|join:" " }}</div>
+    {% endif %}
+    {% for campo in formulario %}
+    {% include "configuracion/_campo.html" %}
+    {% endfor %}
+    <div class="acciones-formulario">
+      <button type="submit" class="boton">{% if activar %}Activar{% else %}Desactivar{% endif %}</button>
+      <a class="boton boton--secundario" href="{{ volver }}">Cancelar</a>
+    </div>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

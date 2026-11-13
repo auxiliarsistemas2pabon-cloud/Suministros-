@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block titulo %}Revisión de proyecciones{% endblock %}
+
+{% block contenido %}
+<div class="encabezado-seccion">
+  <h1>Revisión de proyecciones</h1>
+  <div class="acciones-formulario">
+    <a class="boton boton--secundario" href="{% url 'proyecciones:consolidado' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">Ver consolidado</a>
+    <a class="boton boton--secundario" href="{% url 'bitacora:consulta' %}">Consultar la bitácora</a>
+  </div>
+</div>
+<p class="texto-suave">Proyecciones de todas las áreas, con su estado, número de líneas y costo total. Abra una proyección enviada para corregirla o devolverla al área.</p>
+{% include "configuracion/_filtro.html" %}
+
+{% if pagina.object_list %}
+<div class="tabla-contenedor">
+  <table class="tabla">
+    <caption class="visualmente-oculto">Proyecciones por área</caption>
+    <thead>
+      <tr><th scope="col">Periodo</th><th scope="col">Área</th><th scope="col">Estado</th><th scope="col">Enviada</th><th scope="col" class="numero">Líneas</th><th scope="col" class="numero">Costo original</th><th scope="col" class="numero">Costo vigente</th><th scope="col">Acciones</th></tr>
+    </thead>
+    <tbody>
+      {% for proyeccion in pagina %}
+      <tr>
+        <td>{{ proyeccion.periodo.anio }}</td>
+        <td>{{ proyeccion.area.nombre }} ({{ proyeccion.area.codigo_area }})</td>
+        <td>{% include "proyecciones/_estado_proyeccion.html" with estado=proyeccion.estado %}</td>
+        <td>{% if proyeccion.fecha_envio %}{{ proyeccion.fecha_envio|date:"d/m/Y H:i" }}{% if proyeccion.enviado_por %} · {{ proyeccion.enviado_por.nombre }}{% endif %}{% else %}—{% endif %}</td>
+        <td class="numero">{{ proyeccion.numero_lineas }}</td>
+        <td class="numero">$ {{ proyeccion.costo_total|floatformat:"2g" }}</td>
+        <td class="numero">$ {{ proyeccion.costo_vigente|floatformat:"2g" }}</td>
+        <td class="tabla__acciones"><a href="{% url 'proyecciones:revision_detalle' proyeccion.pk %}">{% if proyeccion.estado == "enviada" %}Revisar{% else %}Ver detalle{% endif %}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr><th scope="row" colspan="5">Costo total del filtro</th><td class="numero"><strong>$ {{ costo_total|floatformat:"2g" }}</strong></td><td class="numero"><strong>$ {{ costo_vigente|floatformat:"2g" }}</strong></td><td></td></tr>
+    </tfoot>
+  </table>
+</div>
+{% include "configuracion/_paginacion.html" %}
+{% else %}
+<p>No hay proyecciones que coincidan con el filtro.</p>
+{% endif %}
+{% endblock %}

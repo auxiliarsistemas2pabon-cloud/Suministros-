@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}Responder requisito{% endblock %}
+{% block contenido %}{% include "proveedores/_submenu.html" %}
+<section class="tarjeta"><h1>Requisito {{ peso.requisito.numero }} · {{ peso.requisito.get_grupo_display }}</h1><p>{{ peso.requisito.texto }}</p><p>Peso: {{ peso.valor }} · {{ evaluacion.proveedor.razon_social }} · Versión {{ evaluacion.version.numero }}</p>
+{% if actual.evidencia_pdf_id %}<p><a href="{% url 'proveedores:evaluacion_evidencia' evaluacion.pk actual.evidencia_pdf_id %}">Descargar PDF actual</a>. Reemplazarlo conserva el archivo anterior en el historial de adjuntos.</p>{% endif %}
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton" type="submit">Guardar respuesta</button></form>
+<p><a href="{% url 'proveedores:evaluacion_detalle' evaluacion.pk %}">Volver a la evaluación</a></p></section>{% endblock %}

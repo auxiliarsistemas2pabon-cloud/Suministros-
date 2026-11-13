@@ -1,0 +1,19 @@
+<div class="tabla-contenedor">
+  <table class="tabla">
+    <caption class="visualmente-oculto">{{ titulo_tabla }}</caption>
+    <thead>
+      <tr><th scope="col">Proveedor</th><th scope="col">Documento</th><th scope="col">Vence</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr>
+    </thead>
+    <tbody>
+      {% for documento in documentos_alerta %}
+      <tr>
+        <td><a href="{% url 'proveedores:detalle' documento.proveedor_id %}">{{ documento.proveedor.razon_social }}</a><br><span class="texto-suave">NIT {{ documento.proveedor.nit_formateado }}</span></td>
+        <td>{{ documento.tipo.nombre }}<br><span class="texto-suave">Alerta a {{ documento.dias_alerta }} días</span></td>
+        <td>{{ documento.fecha_vencimiento|date:"d/m/Y" }}</td>
+        <td>{% include "proveedores/_vigencia.html" %}</td>
+        <td class="tabla__acciones"><a href="{% url 'proveedores:documento_nuevo' documento.proveedor_id %}">Cargar uno nuevo</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

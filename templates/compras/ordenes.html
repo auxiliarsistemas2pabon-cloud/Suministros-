@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Órdenes de compra{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Órdenes de compra</h1><p>Desde una decisión aprobada puede crear un borrador por proveedor adjudicado.</p>
+{% include "configuracion/_filtro.html" %}
+<p><a href="{% querystring formato="excel" %}">Exportar estos resultados a Excel</a></p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Orden</th><th>Proveedor conservado</th><th>Cotización</th><th>Fecha</th><th>Estado</th><th>Total</th></tr></thead><tbody>
+{% for orden in pagina %}<tr><td><a href="{% url 'compras:orden_detalle' orden.pk %}">{% if orden.consecutivo %}{{ orden.consecutivo }}{% else %}Orden {{ orden.pk }}{% endif %}</a></td><td>{{ orden.razon_social }} · {{ orden.nit }}</td><td><a href="{% url 'compras:cotizacion_detalle' orden.cotizacion_id %}">{{ orden.cotizacion.consecutivo }}</a></td><td>{{ orden.fecha_elaboracion|date:"d/m/Y" }}</td><td>{{ orden.get_estado_display }}</td><td>{{ orden.total|floatformat:2 }}</td></tr>{% empty %}<tr><td colspan="6">Sin órdenes registradas.</td></tr>{% endfor %}
+</tbody></table></div>
+{% include "configuracion/_paginacion.html" %}
+{% endblock %}

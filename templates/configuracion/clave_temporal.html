@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block titulo %}Clave temporal{% endblock %}
+
+{% block contenido %}
+<section class="tarjeta tarjeta--estrecha">
+  <h1>Clave temporal</h1>
+  <p>Usuario: <strong>{{ usuario.nombre }}</strong> &lt;{{ usuario.correo }}&gt;</p>
+  <div class="mensaje mensaje--warning" role="alert">Esta clave se muestra <strong>una sola vez</strong>. Cópiela ahora y entréguela al usuario por un medio seguro. El usuario deberá cambiarla en su primer ingreso.</div>
+  <p class="clave-temporal"><code id="clave-temporal">{{ clave }}</code></p>
+  <a class="boton" href="{% url 'configuracion:usuarios' %}">Ya la copié, volver a usuarios</a>
+</section>
+{% endblock %}

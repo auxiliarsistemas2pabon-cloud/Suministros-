@@ -1,0 +1,9 @@
+{% with nombre=request.resolver_match.url_name %}
+<nav class="submenu" aria-label="Secciones de proveedores">
+  <a href="{% url 'proveedores:matrices' %}">Matrices FR-GDS-14</a>
+  <a href="{% url 'proveedores:lista' %}"{% if nombre == "lista" or nombre == "detalle" %} aria-current="page"{% endif %}>Proveedores</a>
+  <a href="{% url 'proveedores:nuevo' %}"{% if nombre == "nuevo" %} aria-current="page"{% endif %}>Nuevo proveedor</a>
+  <a href="{% url 'proveedores:vencimientos' %}"{% if nombre == "vencimientos" %} aria-current="page"{% endif %}>Vencimientos</a>
+  <a href="{% url 'proveedores:bandeja' %}"{% if nombre == "bandeja" or "envio" in nombre %} aria-current="page"{% endif %}>Bandeja de envíos</a>
+</nav>
+{% endwith %}

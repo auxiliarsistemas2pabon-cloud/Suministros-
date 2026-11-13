@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Oferta · {{ invitado.razon_social }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Oferta · {{ invitado.razon_social }}</h1><p>NIT {{ invitado.nit }} · <a href="{% url 'compras:cotizacion_detalle' cotizacion.pk %}">{{ cotizacion.consecutivo }}</a></p>
+<div class="mensaje mensaje--warning" role="status">D-11 pendiente de aprobación. Este guardado usará {{ reglas.decimales }} decimales y {{ reglas.modo }}. No se supone IVA fijo ni se aplican descuentos implícitos.</div>
+<p>Subtotal = cantidad × precio, redondeado. Impuesto = subtotal redondeado × tarifa / 100, redondeado. Total = subtotal + impuesto. Los totales se calculan en el servidor.</p>
+<p><a href="{% url 'compras:oferta_tarifas' %}">Configurar tarifas</a> · <a href="{% url 'configuracion:parametros' %}">Configurar redondeo</a></p>
+{% if actual %}<p>Último guardado: subtotal {{ actual.subtotal|floatformat:2 }}, impuesto {{ actual.impuesto|floatformat:2 }}, total {{ actual.total|floatformat:2 }}. <a href="{% url 'compras:oferta_detalle' cotizacion.pk actual.pk %}">Consultar la revisión {{ actual.revision }}</a>. Guarde para recalcular con los datos del formulario.</p>{% endif %}
+<section class="tarjeta"><form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{{ formulario.revision_esperada }}{{ formulario.revision_esperada.errors }}
+{% for campo in formulario.visible_fields %}{% include "configuracion/_campo.html" %}{% endfor %}
+<h2>Precios por especificación</h2>{{ precios.management_form }}{{ precios.non_form_errors }}
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Especificación</th><th>Cantidad</th><th>Precio unitario</th><th>Tarifa</th></tr></thead><tbody>
+{% for linea, precio in filas %}<tr><td>{{ linea.descripcion }}<br>{{ linea.especificacion|linebreaksbr }}{{ precio.linea }}{{ precio.linea.errors }}{{ precio.non_field_errors }}</td><td>{{ linea.cantidad }} {{ linea.unidad_texto }}</td><td>{{ precio.precio_unitario.label_tag }}{{ precio.precio_unitario.errors }}{{ precio.precio_unitario }}</td><td>{{ precio.tarifa.label_tag }}{{ precio.tarifa.errors }}{{ precio.tarifa }}</td></tr>{% endfor %}
+</tbody></table></div><p>Complete todas las líneas para comparar especificaciones equivalentes. Un nuevo PDF o guardado conserva la revisión anterior.</p>
+<button class="boton" type="submit">Guardar oferta y recalcular</button>
+</form></section>
+{% endblock %}

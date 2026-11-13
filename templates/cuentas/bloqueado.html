@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block titulo %}Acceso bloqueado{% endblock %}
+
+{% block contenido %}
+<section class="tarjeta tarjeta--estrecha">
+  <h1>Acceso bloqueado temporalmente</h1>
+  <div class="mensaje mensaje--error" role="alert">Se registraron demasiados intentos fallidos de ingreso con estos datos.</div>
+  <p>Por seguridad, espere unos minutos antes de intentarlo de nuevo, o comuníquese con un administrador del sistema para desbloquear su cuenta.</p>
+</section>
+{% endblock %}

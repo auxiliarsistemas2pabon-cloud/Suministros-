@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block contenido %}
+{% include "configuracion/_submenu.html" %}
+<nav class="submenu" aria-label="Catálogos de proveedores">
+  <a href="{% url 'configuracion:catalogos_proveedores' 'documentos-exigidos' %}">Documentos exigidos (D-05)</a>
+  <a href="{% url 'configuracion:catalogos_proveedores' 'categorias' %}"{% if catalogo == "categorias" %} aria-current="page"{% endif %}>Categorías</a>
+  <a href="{% url 'configuracion:catalogos_proveedores' 'tipos-documento' %}"{% if catalogo == "tipos-documento" %} aria-current="page"{% endif %}>Tipos de documento</a>
+  <a href="{% url 'configuracion:catalogos_proveedores' 'requisitos' %}"{% if catalogo == "requisitos" %} aria-current="page"{% endif %}>Requisitos FR-GDS-14</a>
+  <a href="{% url 'configuracion:catalogos_proveedores' 'pesos' %}"{% if catalogo == "pesos" %} aria-current="page"{% endif %}>Pesos</a>
+</nav>
+<div class="encabezado-seccion"><h1>{{ titulo }}</h1><a class="boton" href="{% url 'configuracion:catalogo_proveedor_nuevo' catalogo %}">Crear registro</a></div>
+{% if catalogo == "requisitos" or catalogo == "pesos" %}<p class="texto-suave">Catálogo base de selección de proveedores. Los pesos admitidos son 1 y 2. Los textos oficiales deben ser confirmados por la clínica.</p>{% endif %}
+{% include "configuracion/_filtro.html" %}
+<div class="tabla-contenedor"><table class="tabla">
+  <caption class="visualmente-oculto">{{ titulo }}</caption>
+  <thead><tr>{% for columna in columnas %}<th scope="col">{{ columna }}</th>{% endfor %}{% if con_estado %}<th scope="col">Estado</th>{% endif %}<th scope="col">Acciones</th></tr></thead>
+  <tbody>
+  {% for fila in filas %}
+  <tr>{% for valor in fila.valores %}<td>{{ valor }}</td>{% endfor %}{% if con_estado %}<td>{% include "configuracion/_estado.html" with activo=fila.objeto.activo %}</td>{% endif %}<td class="tabla__acciones"><a href="{% url 'configuracion:catalogo_proveedor_editar' catalogo fila.objeto.pk %}">Editar</a>{% if con_estado %}<a href="{% url 'configuracion:catalogo_proveedor_estado' catalogo fila.objeto.pk %}">{% if fila.objeto.activo %}Desactivar{% else %}Activar{% endif %}</a>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5">No hay registros que coincidan con el filtro.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+{% include "configuracion/_paginacion.html" %}
+{% endblock %}

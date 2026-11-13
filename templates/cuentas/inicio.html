@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block titulo %}Inicio{% endblock %}
+
+{% block contenido %}
+<h1>Bienvenido(a), {{ user.nombre }}</h1>
+<p class="texto-suave">Rol: {{ user.get_rol_display }}{% if user.area %} · Área: {{ user.area.nombre }}{% endif %}</p>
+
+{% if accesos %}
+<h2>¿Qué desea hacer?</h2>
+<ul class="accesos">
+  {% for acceso in accesos %}
+  <li class="acceso{% if not acceso.url %} acceso--pendiente{% endif %}">
+    {% if acceso.url %}
+    <a class="acceso__enlace" href="{{ acceso.url }}">
+      <span class="acceso__nombre">{{ acceso.nombre }}</span>
+      <span class="acceso__descripcion">{{ acceso.descripcion }}</span>
+    </a>
+    {% else %}
+    <div class="acceso__enlace" aria-disabled="true">
+      <span class="acceso__nombre">{{ acceso.nombre }}</span>
+      <span class="acceso__descripcion">{{ acceso.descripcion }}</span>
+      <span class="acceso__estado">Disponible próximamente</span>
+    </div>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Su rol todavía no tiene opciones disponibles. Si cree que se trata de un error, comuníquese con un administrador del sistema.</p>
+{% endif %}
+{% endblock %}

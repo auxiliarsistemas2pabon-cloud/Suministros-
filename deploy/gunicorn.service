@@ -1,0 +1,24 @@
+[Unit]
+Description=Suministros Django con Gunicorn
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=suministros
+Group=suministros
+WorkingDirectory=/srv/suministros/app
+EnvironmentFile=/etc/suministros/suministros.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/srv/suministros/app/.venv/bin/gunicorn config.wsgi:application --bind 127.0.0.1:8002 --workers 3 --timeout 120 --access-logfile - --error-logfile -
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/suministros/privados
+
+[Install]
+WantedBy=multi-user.target

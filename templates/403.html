@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block titulo %}Acceso denegado{% endblock %}
+
+{% block contenido %}
+<section class="tarjeta tarjeta--estrecha">
+  <h1>Acceso denegado</h1>
+  <div class="mensaje mensaje--error" role="alert">Usted no tiene permiso para ver esta página.</div>
+  <p>Si cree que se trata de un error, comuníquese con un administrador del sistema.</p>
+  {% if user.is_authenticated %}<p><a href="{% url 'inicio' %}">Volver al inicio</a></p>{% endif %}
+</section>
+{% endblock %}

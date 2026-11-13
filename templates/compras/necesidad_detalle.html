@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Necesidad {{ necesidad.pk }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>Necesidad {{ necesidad.pk }}</h1>
+<section class="tarjeta">
+  <h2>{{ necesidad.objeto }}</h2>
+  <dl class="ficha">
+    <dt>Área</dt><dd>{{ necesidad.area }}</dd>
+    <dt>Fecha</dt><dd>{{ necesidad.fecha|date:"d/m/Y" }}</dd>
+    <dt>Responsable</dt><dd>{{ necesidad.responsable }}</dd>
+    <dt>Estado</dt><dd>{{ necesidad.estado }}</dd>
+    <dt>Cantidad base</dt><dd>{{ base.cantidad|default_if_none:"Pendiente" }} {{ base.unidad }} · {{ base.origen }}{% if necesidad.estado == "abierta" %} · <a href="{% url 'compras:necesidad_cantidad' necesidad.pk %}">Definir o revisar</a>{% endif %}</dd>
+    <dt>Tipo de origen</dt><dd>{{ necesidad.tipo_origen|default:"Sin tipo" }}</dd>
+    <dt>Detalle del origen</dt><dd>{{ necesidad.origen_texto|default:"Sin detalle adicional"|linebreaksbr }}</dd>
+  </dl>
+  <h3>Líneas aprobadas de origen</h3>
+  <div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Periodo</th><th>Producto o servicio</th><th>Unidad</th><th>Cantidad tomada</th><th>Proyección</th></tr></thead><tbody>
+    {% for origen in origenes %}<tr><td>{{ origen.datos_origen.periodo }}</td><td>{{ origen.datos_origen.producto }}</td><td>{{ origen.datos_origen.unidad }}</td><td>{{ origen.cantidad }}</td><td><a href="{% url 'proyecciones:revision_detalle' origen.linea.proyeccion_id %}">Ver origen</a></td></tr>
+    {% empty %}<tr><td colspan="5">Necesidad sin líneas de proyección.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="tarjeta"><h2>Listas de elegibles</h2>
+  <ul>{% for lista in necesidad.listas.all %}<li><a href="{% url 'compras:lista_detalle' lista.pk %}">Lista {{ lista.pk }}</a> · {{ lista.fecha|date:"d/m/Y" }} · {{ lista.estado_flujo }}</li>{% empty %}<li>Sin listas registradas.</li>{% endfor %}</ul>
+  {% if necesidad.estado == "abierta" %}
+  <h3>Crear lista</h3><form method="post" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}
+    {% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}
+    <button type="submit" class="boton">Crear lista de elegibles</button>
+  </form>{% endif %}
+</section>
+<section class="tarjeta"><h2>Cotizaciones de la necesidad</h2>
+{% if necesidad.estado == "abierta" %}<a href="{% url 'compras:cotizacion_nueva' %}?necesidad={{ necesidad.pk }}">Crear cotización manual</a>{% endif %}
+<ul>{% for cotizacion in necesidad.cotizaciones.all %}<li><a href="{% url 'compras:cotizacion_detalle' cotizacion.pk %}">{{ cotizacion.consecutivo }}</a> · {{ cotizacion.get_estado_display }}</li>{% empty %}<li>Sin cotizaciones.</li>{% endfor %}</ul></section>
+{% endblock %}

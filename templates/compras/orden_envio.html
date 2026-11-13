@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block titulo %}Evidencia de envío{% endblock %}
+{% block contenido %}{% include "compras/_submenu.html" %}<h1>Registrar evidencia de envío · {{ orden }}</h1><p>Registre el envío que realizó al proveedor. Esta acción conserva la evidencia y no envía correos. Para corregir una evidencia anterior, indique su ID y el motivo.</p><form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}{{ formulario.non_field_errors }}{% for campo in formulario %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton">Guardar evidencia</button></form>{% endblock %}

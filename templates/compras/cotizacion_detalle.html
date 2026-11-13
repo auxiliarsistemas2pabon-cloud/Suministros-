@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}{{ cotizacion.consecutivo }}{% endblock %}
+{% block contenido %}
+{% include "compras/_submenu.html" %}
+<h1>{{ cotizacion.consecutivo }} · FR-GDS-28</h1>
+<p>Órdenes asociadas: {% for orden in cotizacion.ordenes.all %}<a href="{% url 'compras:orden_detalle' orden.pk %}">Orden {{ orden.pk }} · {{ orden.get_estado_display }}</a> {% empty %}Sin órdenes registradas.{% endfor %}</p>
+<p>Requiere contrato: {{ cotizacion.requiere_contrato|yesno:"Sí,No" }} · <a href="{% url 'compras:contrato_requerimiento' cotizacion.pk %}">Configurar requerimiento de contrato</a>.</p>
+<p><a class="boton" href="{% url 'compras:cotizacion_comparar' cotizacion.pk %}">Comparativo y decisión</a></p>
+<p><a class="boton boton--secundario" href="{% url 'compras:verificaciones' cotizacion.pk %}">Verificaciones de oferentes</a></p>
+<p><a class="boton boton--secundario" href="{% url 'compras:proveedor_unico' cotizacion.pk %}">Proveedor único y justificación</a> · Caso confirmado: {{ cotizacion.proveedor_unico|yesno:"Sí,No" }}.</p>
+<section class="tarjeta"><h2>{{ cotizacion.objeto }}</h2><dl class="ficha">
+<dt>Fecha</dt><dd>{{ cotizacion.fecha|date:"d/m/Y" }}</dd><dt>Área</dt><dd>{{ cotizacion.area }}</dd>
+<dt>Responsable</dt><dd>{{ cotizacion.responsable }}</dd><dt>Tipo</dt><dd>{{ cotizacion.tipo }}</dd><dt>Estado</dt><dd>{{ cotizacion.get_estado_display }}</dd>
+<dt>Necesidad</dt><dd><a href="{% url 'compras:necesidad_detalle' cotizacion.necesidad_id %}">Necesidad {{ cotizacion.necesidad_id }}</a></dd>
+<dt>Lista de origen</dt><dd>{% if cotizacion.lista_elegibles_id %}<a href="{% url 'compras:lista_detalle' cotizacion.lista_elegibles_id %}">Lista {{ cotizacion.lista_elegibles_id }}</a>{% if cotizacion.cierre_origen_id %} · <a href="{% url 'compras:lista_cierre_detalle' cotizacion.lista_elegibles_id cotizacion.cierre_origen_id %}">Cierre conservado</a>{% endif %}{% else %}Registro manual sin lista de elegibles{% endif %}</dd>
+</dl><p>Límites D-10 usados al crear: {{ cotizacion.limites_aplicados.oferentes|default:"sin límite" }} invitados y {{ cotizacion.limites_aplicados.lineas|default:"sin límite" }} líneas. Valores provisionales pendientes de aprobación.</p></section>
+<section class="tarjeta"><h2>Especificaciones</h2><div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Descripción</th><th>Cantidad</th><th>Unidad</th><th>Especificación técnica</th><th>Origen</th></tr></thead><tbody>
+{% for linea in lineas %}<tr><td>{{ linea.descripcion }}</td><td>{{ linea.cantidad }}</td><td>{{ linea.unidad_texto }}</td><td>{{ linea.especificacion|linebreaksbr }}</td><td>{% if linea.origen_id %}{{ linea.origen_datos.producto }} · {{ linea.origen_datos.periodo }} · <a href="{% url 'proyecciones:revision_detalle' linea.origen.linea.proyeccion_id %}">Abrir proyección</a>{% else %}Especificación manual{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></section>
+<section class="tarjeta"><h2>Proveedores invitados</h2><div class="tabla-contenedor"><table class="tabla"><thead><tr><th>NIT registrado</th><th>Razón social registrada</th><th>Cantidad autorizada de origen</th></tr></thead><tbody>
+{% for invitado in invitados %}<tr><td>{{ invitado.nit }}</td><td><a href="{% url 'proveedores:detalle' invitado.proveedor_id %}">{{ invitado.razon_social }}</a>{% if cotizacion.estado == "borrador" or cotizacion.estado == "en_comparacion" %}<br><a href="{% url 'compras:oferta_guardar' cotizacion.pk invitado.pk %}">Registrar o actualizar oferta</a>{% endif %}</td><td>{{ invitado.cantidad_autorizada|default_if_none:"Sin asignación desde elegibles" }}</td></tr>{% empty %}<tr><td colspan="3">Sin proveedores invitados.</td></tr>{% endfor %}
+</tbody></table></div><p>Una invitación no es una oferta. Para proveedores nuevos, <a href="{% url 'proveedores:nuevo' %}">registre primero su ficha</a>.</p>
+{% if not cotizacion.lista_elegibles_id %}{% if cotizacion.estado == "borrador" or cotizacion.estado == "en_comparacion" %}<h3>Invitar proveedor registrado</h3><form method="post" action="{% url 'compras:cotizacion_invitar' cotizacion.pk %}" novalidate>{% csrf_token %}{% for campo in invitacion_form %}{% include "configuracion/_campo.html" %}{% endfor %}<button class="boton boton--secundario" type="submit">Invitar proveedor</button></form>{% endif %}{% endif %}
+</section>
+<section class="tarjeta"><h2>Ofertas registradas</h2><div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Proveedor</th><th>Fecha</th><th>Vigente hasta</th><th>Subtotal</th><th>Impuesto</th><th>Total</th><th>Revisión</th></tr></thead><tbody>
+{% for oferta in ofertas %}<tr><td><a href="{% url 'compras:oferta_detalle' cotizacion.pk oferta.pk %}">{{ oferta.razon_social }} · {{ oferta.nit }}</a></td><td>{{ oferta.fecha|date:"d/m/Y" }}</td><td>{{ oferta.vigente_hasta|date:"d/m/Y"|default:"Sin fecha indicada" }}</td><td>{{ oferta.subtotal|floatformat:2 }}</td><td>{{ oferta.impuesto|floatformat:2 }}</td><td>{{ oferta.total|floatformat:2 }}</td><td>{{ oferta.revision }}</td></tr>{% empty %}<tr><td colspan="7">Sin ofertas registradas.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}
