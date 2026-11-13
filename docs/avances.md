@@ -1,5 +1,64 @@
 # Avances del proyecto
 
+## 2026-11-13 · Corrección de la carga visual
+
+- Se reprodujo el fallo en el navegador integrado: el HTML nuevo aparecía sin
+  los estilos de estructura y los SVG ocupaban grandes bloques negros.
+- `base.html` enlaza directamente las seis hojas CSS, con una versión compartida
+  para renovar la caché. Se retiraron las importaciones anidadas de `estilos.css`.
+- Los iconos declaran tamaño, área de dibujo y trazo en el propio SVG; el
+  contenedor de definiciones tiene tamaño cero y permanece oculto.
+- Se comprobó visualmente el ingreso, el inicio autenticado, el menú desplegado,
+  el listado de órdenes y el formulario de nueva necesidad. El inicio quedó
+  abierto con el diseño corregido. No se crearon operaciones de prueba en la
+  base local ni se modificaron las credenciales.
+- `check` correcto; las seis hojas versionadas responden HTTP 200. Las 164
+  pruebas de cuentas, configuración y portal terminaron sin fallos, con una
+  omisión específica de PostgreSQL.
+
+## 2026-11-13 · Organización del frontend y el backend
+
+- Estructura común con barra lateral por Operación, Planeación y Administración,
+  sección activa, navegación móvil, perfil y salida por POST. El ingreso y el
+  inicio usan una presentación compartida en azul institucional.
+- Inicio con indicadores reales: proveedores, órdenes por aprobar, documentos
+  pendientes y seguimientos abiertos para administración; coordinación recibe
+  únicamente las proyecciones de su área. Se muestran las últimas órdenes y el
+  acceso a completar la razón social y el NIT cuando siguen por configurar.
+- Plantillas comunes en `templates/componentes/`; CSS separado en base,
+  componentes, módulos, estructura y panel; JavaScript pequeño para el menú.
+  Los catálogos de compras se agrupan en un desplegable nativo.
+- Las 47 definiciones del antiguo `compras/models.py` se separaron en diez
+  módulos de `compras/modelos/`, manteniendo la fachada de importación y las
+  tablas. La comparación AST confirmó que conservan su contenido, salvo el
+  import local necesario de `AprobacionCotizacion` dentro de `Cotizacion.save`.
+- Consultas de inicio y portal separadas de las vistas. Los PDF del portal
+  utilizan la respuesta privada compartida, después de comprobar la propiedad
+  del documento. Se mantienen servicios, auditoría y permisos existentes.
+- Se documentó la estructura en `docs/arquitectura.md` y se ajustó el README al
+  trabajo con carpeta local y SQLite, con PostgreSQL opcional.
+
+### Verificación
+
+- `check`, comprobación de migraciones generadas y migraciones pendientes:
+  correctos; no hizo falta cambiar el esquema de la base local.
+- 873 pruebas en SQLite: sin fallos, seis omitidas por ser de PostgreSQL.
+- 873 pruebas en PostgreSQL 18 aislado: todas correctas, sin omisiones. El
+  clúster temporal quedó detenido después de la ejecución.
+- Pruebas nuevas de indicadores por área, ausencia de indicadores globales
+  para proveedores, navegación por rol, sección activa en rutas anidadas y
+  presentación de una orden creada mediante los servicios reales.
+- Ingreso, siete recursos CSS/JS y nueve pantallas principales comprobados por
+  HTTP en el servidor local; las pantallas se verificaron con administrador y
+  desarrollador. Se comprobaron identificadores e iconos y se eliminaron las
+  sesiones usadas para la revisión. Integridad SQLite correcta y credenciales
+  existentes conservadas.
+- La revisión visual en navegador quedó pendiente: la herramienta de uso del
+  equipo no pudo verificar con suficiente confianza la URL de Chrome y detuvo
+  su ejecución. No se considera validado visualmente el diseño.
+
+Todo el trabajo quedó en archivos locales, sin commits ni publicaciones.
+
 ## 2026-11-12 · Revisión de integración posterior a B28
 
 - Se reprodujeron con pruebas tres fallos de integración y se corrigieron:

@@ -2,17 +2,16 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from django.http import FileResponse, Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods, require_safe
 
 from config.utilidades import agregar_errores
+from config.descargas import pdf_privado as _descarga
 from cuentas.models import Rol
 from cuentas.permisos import rol_requerido
-from portal import forms, servicios
-from proveedores import servicios as proveedores_servicios
-from proveedores.models import DocumentoProveedor, EnvioProveedor
+from portal import forms, servicios, consultas
 
 
 @never_cache
@@ -51,11 +50,10 @@ def registro_recibido(request):
 @never_cache
 @require_safe
 def inicio(request):
-    proveedor = servicios.ficha_de(request.user)
-    envios = proveedor.envios.select_related("tipo").order_by("-fecha_envio", "-pk")
+    datos = consultas.panel(request.user)
     return render(request, "portal/inicio.html", {
-        "proveedor": proveedor, "pagina": Paginator(envios, 25).get_page(request.GET.get("pagina")),
-        "documentos": proveedores_servicios.documentos_de(proveedor),
+        "proveedor": datos["proveedor"], "pagina": Paginator(datos["envios"], 25).get_page(request.GET.get("pagina")),
+        "documentos": datos["documentos"],
     })
 
 
@@ -82,30 +80,15 @@ def envio_nuevo(request):
     return render(request, "portal/envio_formulario.html", {"formulario": formulario})
 
 
-def _descarga(documento):
-    if not documento.archivo:
-        raise Http404("El documento no tiene un PDF disponible.")
-    try:
-        archivo = documento.archivo.open("rb")
-    except FileNotFoundError:
-        raise Http404("El archivo no está disponible.") from None
-    respuesta = FileResponse(archivo, as_attachment=True, filename=documento.nombre_archivo or "documento.pdf", content_type="application/pdf")
-    respuesta["X-Content-Type-Options"] = "nosniff"
-    respuesta["Cache-Control"] = "private, no-store"
-    return respuesta
-
-
 @rol_requerido(Rol.PROVEEDOR)
 @never_cache
 @require_safe
 def envio_descargar(request, pk):
-    proveedor = servicios.ficha_de(request.user)
-    return _descarga(get_object_or_404(EnvioProveedor, pk=pk, proveedor=proveedor))
+    return _descarga(consultas.envio_propio(request.user, pk))
 
 
 @rol_requerido(Rol.PROVEEDOR)
 @never_cache
 @require_safe
 def documento_descargar(request, pk):
-    proveedor = servicios.ficha_de(request.user)
-    return _descarga(get_object_or_404(DocumentoProveedor, pk=pk, proveedor=proveedor))
+    return _descarga(consultas.documento_propio(request.user, pk))

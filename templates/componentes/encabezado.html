@@ -1,0 +1,46 @@
+<header class="encabezado">
+  <div class="encabezado__interno">
+    {% if user.is_authenticated and not user.debe_cambiar_clave %}
+      <div>
+        <p class="encabezado__etiqueta">Área de trabajo</p>
+        <p class="encabezado__nombre">{{ seccion_actual|default:'Gestión de suministros' }}</p>
+      </div>
+    {% else %}
+      <a class="marca marca--publica" href="{% url 'inicio' %}">
+        <span class="marca__simbolo" aria-hidden="true">GS</span>
+        <span>Gestión de suministros</span>
+      </a>
+    {% endif %}
+    {% if user.is_authenticated %}
+      <div class="encabezado__usuario">
+        {% if not user.debe_cambiar_clave and user.rol == "administrador" or not user.debe_cambiar_clave and user.rol == "desarrollador" %}
+          <form method="get" action="{% url 'configuracion:buscar' %}" role="search" class="busqueda-superior">
+            <label for="busqueda-superior" class="solo-lectores">Buscar NIT o consecutivo</label>
+            {% include 'componentes/icono.html' with nombre='buscar' %}
+            <input id="busqueda-superior" name="q" value="{{ request.GET.q|default:'' }}" maxlength="200" placeholder="Buscar NIT o consecutivo">
+            <button type="submit" class="solo-lectores boton-buscar">Buscar</button>
+          </form>
+        {% endif %}
+        <div class="perfil">
+          <span class="perfil__inicial" aria-hidden="true">{{ user.nombre|slice:':1'|upper }}</span>
+          <div>
+            <span class="perfil__nombre">{{ user.get_full_name|default:user.get_username }}</span>
+            <span class="perfil__rol">{{ user.get_rol_display }}</span>
+          </div>
+        </div>
+        <details class="cuenta">
+          <summary>Su cuenta</summary>
+          <div class="cuenta__opciones">
+            <a href="{% url 'cuentas:cambiar_clave' %}">
+              Cambiar clave
+            </a>
+            <form method="post" action="{% url 'cuentas:salir' %}">
+              {% csrf_token %}
+              <button type="submit">Cerrar sesión</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    {% endif %}
+  </div>
+</header>

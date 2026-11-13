@@ -1,0 +1,504 @@
+/* Estructura de la aplicación, navegación y adaptaciones por tamaño de pantalla. */
+.app-layout {
+  min-height: 100vh;
+}
+
+.aplicacion .app-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+}
+
+.app-principal {
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.lateral {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--azul);
+  color: white;
+}
+
+.lateral__cabecera {
+  min-height: 100px;
+  padding: 26px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #ffffff18;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  text-decoration: none;
+  line-height: 1.2;
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+.marca:hover {
+  color: white;
+}
+
+.marca__simbolo {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  background: #ffffff15;
+  border: 1px solid #ffffff38;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 750;
+  letter-spacing: -0.05em;
+}
+
+.marca__detalle {
+  display: block;
+  margin-top: 4px;
+  color: #c8d6f4;
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
+.menu {
+  padding: 20px 14px;
+}
+
+.menu__lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.menu__grupo {
+  margin-top: 24px;
+}
+
+.menu__titulo {
+  margin: 0 12px 10px;
+  color: #b3c2e4;
+  font-size: 0.65rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.menu__enlace {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  color: #e0e7f6;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  text-decoration: none;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.menu__enlace:hover {
+  color: white;
+  background: #ffffff0d;
+}
+
+.menu__enlace[aria-current="page"] {
+  background: #ffffff17;
+  border-color: #ffffff24;
+  color: white;
+  box-shadow: inset 3px 0 #a2baff;
+}
+
+.menu__enlace .icono {
+  flex-shrink: 0;
+  opacity: 0.84;
+}
+
+.lateral__nota {
+  margin: 34px 13px 12px;
+  padding-top: 20px;
+  border-top: 1px solid #ffffff18;
+  color: #b3c2e4;
+  font-size: 0.72rem;
+}
+
+.lateral :focus-visible {
+  outline-color: white;
+}
+
+.menu__control {
+  display: none;
+}
+
+.encabezado {
+  background: white;
+  color: var(--texto);
+  border-bottom: 1px solid #e7ebf2;
+}
+
+.encabezado__interno {
+  min-height: 88px;
+  padding: 18px 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.encabezado__nombre {
+  margin: 0;
+  color: var(--azul);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.encabezado__etiqueta {
+  margin: 0 0 4px;
+  color: var(--texto-suave);
+  font-size: 0.67rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.encabezado__usuario {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.busqueda-superior {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  border: 1px solid #e0e5ef;
+  padding: 0 12px;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.busqueda-superior input {
+  width: 208px;
+  max-width: 100%;
+  border: 0;
+  padding: 10px 0;
+  background: transparent;
+  font-size: 0.8rem;
+  color: var(--texto);
+}
+
+.busqueda-superior:focus-within {
+  outline: 2px solid var(--azul);
+  outline-offset: 2px;
+}
+
+.busqueda-superior input:focus-visible {
+  outline: none;
+}
+
+.perfil {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.perfil__inicial {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  background: #edf1fb;
+  color: var(--azul);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.perfil__nombre {
+  display: block;
+  max-width: 190px;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.perfil__rol {
+  display: block;
+  color: var(--texto-suave);
+  font-size: 0.68rem;
+  margin-top: 2px;
+}
+
+.cuenta {
+  position: relative;
+  font-size: 0.78rem;
+}
+
+.cuenta summary {
+  cursor: pointer;
+  padding: 8px 0;
+  color: var(--texto-suave);
+}
+
+.cuenta__opciones {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  width: 190px;
+  padding: 6px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 12px 35px #17255416;
+}
+
+.cuenta__opciones a, .cuenta__opciones button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 10px;
+  text-align: left;
+  font: inherit;
+  color: var(--texto);
+  text-decoration: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cuenta__opciones a:hover, .cuenta__opciones button:hover {
+  background: var(--fondo);
+}
+
+.cuenta__opciones form {
+  margin: 0;
+}
+
+.encabezado :focus-visible, .pie :focus-visible {
+  outline-color: var(--azul);
+}
+
+.contenido {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: 30px 34px 42px;
+}
+
+.contenido > h1 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: clamp(1.5rem, 2.3vw, 2rem);
+  letter-spacing: -0.035em;
+}
+
+.contenido > p {
+  color: var(--texto-suave);
+}
+
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 18px 34px;
+  border-top: 1px solid #e7ebf2;
+  color: #64748b;
+  font-size: 0.7rem;
+  background: white;
+}
+
+.pie p {
+  margin: 0;
+}
+
+.marca--publica {
+  color: var(--azul);
+}
+
+.marca--publica:hover {
+  color: var(--azul);
+}
+
+.marca--publica .marca__simbolo {
+  background: var(--azul);
+  color: white;
+}
+
+.pagina-publica .encabezado__interno {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.pagina-publica .contenido {
+  max-width: 1200px;
+}
+
+.icono {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.simbolos {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.boton-buscar:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  clip: auto;
+  padding: 4px;
+  overflow: visible;
+}
+
+@media (max-width: 1200px) {
+  .perfil__nombre {
+    max-width: 120px;
+  }
+  .encabezado__interno, .contenido {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .encabezado__usuario {
+    gap: 12px;
+  }
+  .busqueda-superior input {
+    width: 165px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .aplicacion .app-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lateral {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+  .lateral__cabecera {
+    min-height: 72px;
+    padding: 14px 22px;
+  }
+  .marca__detalle {
+    display: inline;
+    margin-left: 4px;
+    color: inherit;
+    font-size: inherit;
+  }
+  .menu {
+    max-height: 65vh;
+    overflow-y: auto;
+    padding-top: 12px;
+  }
+  .con-interfaz .menu__control {
+    display: inline-flex;
+    padding: 9px;
+    background: transparent;
+    color: white;
+    border: 1px solid #ffffff40;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .con-interfaz[data-menu-abierto="false"] .menu {
+    display: none;
+  }
+  .encabezado__interno {
+    min-height: 78px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+  .perfil__nombre {
+    max-width: 180px;
+  }
+  .busqueda-superior input {
+    width: 200px;
+  }
+}
+
+@media (max-width: 650px) {
+  .contenido {
+    padding: 22px 16px 30px;
+  }
+  .encabezado__interno {
+    padding: 14px 16px;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .encabezado__usuario {
+    gap: 10px;
+  }
+  .busqueda-superior {
+    display: none;
+  }
+  .perfil__nombre {
+    max-width: 105px;
+  }
+  .perfil__rol {
+    max-width: 100px;
+    overflow-wrap: anywhere;
+  }
+  .cuenta summary {
+    font-size: 0.72rem;
+  }
+  .pie {
+    padding: 18px 16px;
+  }
+  .pie > span {
+    display: none;
+  }
+  .marca {
+    font-size: 0.85rem;
+  }
+  .encabezado__etiqueta {
+    font-size: 0.6rem;
+  }
+  .encabezado__nombre {
+    font-size: 0.9rem;
+  }
+}

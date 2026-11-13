@@ -1,32 +1,190 @@
 {% extends "base.html" %}
-
-{% block titulo %}Inicio{% endblock %}
-
+{% block titulo %}
+  Inicio
+{% endblock %}
 {% block contenido %}
-<h1>Bienvenido(a), {{ user.nombre }}</h1>
-<p class="texto-suave">Rol: {{ user.get_rol_display }}{% if user.area %} · Área: {{ user.area.nombre }}{% endif %}</p>
-
-{% if accesos %}
-<h2>¿Qué desea hacer?</h2>
-<ul class="accesos">
-  {% for acceso in accesos %}
-  <li class="acceso{% if not acceso.url %} acceso--pendiente{% endif %}">
-    {% if acceso.url %}
-    <a class="acceso__enlace" href="{{ acceso.url }}">
-      <span class="acceso__nombre">{{ acceso.nombre }}</span>
-      <span class="acceso__descripcion">{{ acceso.descripcion }}</span>
-    </a>
-    {% else %}
-    <div class="acceso__enlace" aria-disabled="true">
-      <span class="acceso__nombre">{{ acceso.nombre }}</span>
-      <span class="acceso__descripcion">{{ acceso.descripcion }}</span>
-      <span class="acceso__estado">Disponible próximamente</span>
+  <div class="encabezado-pagina">
+    <div>
+      <p class="sobre-titulo">Su espacio de trabajo</p>
+      <h1>Bienvenido(a), {{ user.nombre }}</h1>
+      <p class="texto-suave">
+        {% if user.area %}
+          Consulte y prepare la información de {{ user.area.nombre }}.
+        {% else %}
+          Una vista clara de sus compras, documentos y entregas.
+        {% endif %}
+      </p>
     </div>
-    {% endif %}
-  </li>
-  {% endfor %}
-</ul>
-{% else %}
-<p>Su rol todavía no tiene opciones disponibles. Si cree que se trata de un error, comuníquese con un administrador del sistema.</p>
-{% endif %}
+    <span class="fecha-panel">
+      {% now "d M Y" %}
+    </span>
+  </div>
+  {% if configuracion_pendiente %}
+    <section class="aviso-configuracion" aria-label="Configuración pendiente">
+      {% include 'componentes/icono.html' with nombre='ajustes' %}
+      <div>
+        <strong>Complete los datos de la clínica</strong>
+        <p>Configure la razón social y el NIT para habilitar la aprobación y emisión de órdenes.</p>
+      </div>
+      <a href="{% url 'configuracion:parametros' %}">
+        Ir a parámetros
+        {% include 'componentes/icono.html' with nombre='flecha' %}
+      </a>
+    </section>
+  {% endif %}
+  {% if indicadores %}
+    <section class="indicadores" aria-label="Resumen de su operación">
+      {% for indicador in indicadores %}
+        {% include 'componentes/indicador.html' %}
+      {% endfor %}
+    </section>
+  {% endif %}
+  <div class="panel-distribucion">
+    <section class="panel-seccion">
+      <div class="encabezado-seccion">
+        <div>
+          <p class="sobre-titulo">Accesos de su rol</p>
+          <h2>¿Qué desea hacer?</h2>
+        </div>
+      </div>
+      {% if accesos %}
+        <ul class="accesos">
+          {% for acceso in accesos %}
+            <li class="acceso{% if not acceso.url %} acceso--pendiente{% endif %}">
+              {% if acceso.url %}
+                <a class="acceso__enlace" href="{{ acceso.url }}">
+                  <span class="acceso__nombre">{{ acceso.nombre }}</span>
+                  <span class="acceso__descripcion">{{ acceso.descripcion }}</span>
+                  <span class="acceso__flecha">
+                    Abrir
+                    {% include 'componentes/icono.html' with nombre='flecha' %}
+                  </span>
+                </a>
+              {% else %}
+                <div class="acceso__enlace" aria-disabled="true">
+                  <span class="acceso__nombre">{{ acceso.nombre }}</span>
+                  <span class="acceso__descripcion">{{ acceso.descripcion }}</span>
+                  <span class="acceso__estado">Disponible próximamente</span>
+                </div>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>Su rol todavía no tiene opciones disponibles. Si cree que se trata de un error, comuníquese con un administrador del sistema.</p>
+      {% endif %}
+    </section>
+    <aside class="guia-operacion">
+      <p class="sobre-titulo">De principio a fin</p>
+      <h2>
+        {% if user.area %}
+          Su proyección, paso a paso
+        {% else %}
+          Un proceso conectado
+        {% endif %}
+      </h2>
+      <ol class="pasos">
+        {% if user.area %}
+          <li>
+            <span>01</span>
+            <div>
+              <strong>Prepare su información</strong>
+              <p>Registre los productos y cantidades de su área.</p>
+            </div>
+          </li>
+          <li>
+            <span>02</span>
+            <div>
+              <strong>Envíe para validar</strong>
+              <p>Confirme la información antes del envío.</p>
+            </div>
+          </li>
+          <li>
+            <span>03</span>
+            <div>
+              <strong>Consulte el resultado</strong>
+              <p>Conserve el historial de sus periodos.</p>
+            </div>
+          </li>
+        {% else %}
+          <li>
+            <span>01</span>
+            <div>
+              <strong>Defina la necesidad</strong>
+              <p>Organice el origen y los participantes.</p>
+            </div>
+          </li>
+          <li>
+            <span>02</span>
+            <div>
+              <strong>Compare y decida</strong>
+              <p>Consulte ofertas, documentos y aprobaciones.</p>
+            </div>
+          </li>
+          <li>
+            <span>03</span>
+            <div>
+              <strong>Emita y reciba</strong>
+              <p>Conserve la orden y las cantidades entregadas.</p>
+            </div>
+          </li>
+          <li>
+            <span>04</span>
+            <div>
+              <strong>Haga seguimiento</strong>
+              <p>Registre novedades y cierre con respaldo.</p>
+            </div>
+          </li>
+        {% endif %}
+      </ol>
+      <p class="guia-operacion__nota">Cada cambio conserva su motivo y su responsable.</p>
+    </aside>
+  </div>
+  {% if ordenes_recientes %}
+    <section class="panel-seccion seccion">
+      <div class="encabezado-seccion">
+        <div>
+          <p class="sobre-titulo">Actividad reciente</p>
+          <h2>Últimas órdenes</h2>
+        </div>
+        <a href="{% url 'compras:ordenes' %}">
+          Ver todas
+          {% include 'componentes/icono.html' with nombre='flecha' %}
+        </a>
+      </div>
+      <div class="tabla-contenedor">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Orden</th>
+              <th>Proveedor</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th class="numero">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for orden in ordenes_recientes %}
+              <tr>
+                <td>
+                  <a href="{% url 'compras:orden_detalle' orden.pk %}">
+                    {{ orden.consecutivo|default:'Borrador' }}
+                    {% if not orden.consecutivo %}
+                      {{ orden.pk }}
+                    {% endif %}
+                  </a>
+                </td>
+                <td>{{ orden.razon_social }}</td>
+                <td>{{ orden.fecha_elaboracion|date:'d/m/Y' }}</td>
+                <td>
+                  {% include 'componentes/estado.html' with codigo=orden.estado texto=orden.get_estado_display %}
+                </td>
+                <td class="numero">{{ orden.total|floatformat:2 }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% endif %}
 {% endblock %}

@@ -7,11 +7,16 @@
   <a href="{% url 'configuracion:usuarios' %}"{% if "usuario" in nombre %} aria-current="page"{% endif %}>Usuarios</a>
   <a href="{% url 'configuracion:parametros' %}"{% if "parametro" in nombre %} aria-current="page"{% endif %}>Parámetros</a>
   <a href="{% url 'configuracion:catalogos_proveedores' 'categorias' %}"{% if "catalogo" in nombre %} aria-current="page"{% endif %}>Catálogos de proveedores</a>
-  <a href="{% url 'compras:origenes' %}">Orígenes de necesidades</a>
-  <a href="{% url 'compras:cotizacion_tipos' %}">Tipos de cotización</a>
-  <a href="{% url 'compras:oferta_tarifas' %}">Tarifas de impuesto</a>
-  <a href="{% url 'compras:verificacion_catalogo' 'tipos' %}">Verificaciones de oferentes</a>
-  <a href="{% url 'compras:proveedor_unico_causales' %}">Causales de proveedor único</a>
-  <a href="{% url 'compras:poliza_tipos' %}">Tipos de póliza</a>
 </nav>
+<details class="catalogos-menu">
+  <summary>Catálogos de compras</summary>
+  <nav class="catalogos-menu__contenido" aria-label="Catálogos de compras">
+    <a href="{% url 'compras:origenes' %}">Orígenes de necesidades</a>
+    <a href="{% url 'compras:cotizacion_tipos' %}">Tipos de cotización</a>
+    <a href="{% url 'compras:oferta_tarifas' %}">Tarifas de impuesto</a>
+    <a href="{% url 'compras:verificacion_catalogo' 'tipos' %}">Verificaciones de oferentes</a>
+    <a href="{% url 'compras:proveedor_unico_causales' %}">Causales de proveedor único</a>
+    <a href="{% url 'compras:poliza_tipos' %}">Tipos de póliza</a>
+  </nav>
+</details>
 {% endwith %}

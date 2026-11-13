@@ -1,17 +1,24 @@
+{% with nombre=request.resolver_match.url_name %}
 <nav class="submenu" aria-label="Secciones de compras">
-  <a href="{% url 'compras:necesidades' %}">Necesidades y listas</a>
+  <a href="{% url 'compras:necesidades' %}"{% if seccion_menu == 'compras:necesidades' %} aria-current="page"{% endif %}>Necesidades y listas</a>
+  <a href="{% url 'compras:cotizaciones' %}"{% if seccion_menu == 'compras:cotizaciones' %} aria-current="page"{% endif %}>Cotizaciones</a>
+  <a href="{% url 'compras:ordenes' %}"{% if seccion_menu == 'compras:ordenes' %} aria-current="page"{% endif %}>Órdenes de compra</a>
+  <a href="{% url 'compras:polizas_alertas' %}"{% if nombre == 'polizas_alertas' %} aria-current="page"{% endif %}>Vigencias de pólizas</a>
   <a href="{% url 'compras:necesidad_nueva' %}">Nueva necesidad</a>
-  <a href="{% url 'compras:origenes' %}">Tipos de origen</a>
-  <a href="{% url 'compras:versiones_criterios' %}">Criterios FR-GDS-20</a>
-  <a href="{% url 'compras:cotizaciones' %}">Cotizaciones</a>
-  <a href="{% url 'compras:ordenes' %}">Órdenes de compra</a>
   <a href="{% url 'compras:cotizacion_nueva' %}">Nueva cotización</a>
-  <a href="{% url 'compras:cotizacion_tipos' %}">Tipos de cotización</a>
-  <a href="{% url 'compras:oferta_tarifas' %}">Tarifas de impuesto</a>
-  <a href="{% url 'compras:retenciones' %}">Retenciones de órdenes</a>
-  <a href="{% url 'compras:orden_reglas' %}">Aprobación de órdenes</a>
-  <a href="{% url 'compras:verificacion_catalogo' 'tipos' %}">Tipos de verificación</a>
-  <a href="{% url 'compras:proveedor_unico_causales' %}">Causales de proveedor único</a>
-  <a href="{% url 'compras:polizas_alertas' %}">Vigencias de pólizas</a>
-  <a href="{% url 'compras:poliza_tipos' %}">Tipos de póliza</a>
 </nav>
+<details class="catalogos-menu"{% if 'origen' in nombre or 'criterio' in nombre or 'tipo' in nombre or 'tarifa' in nombre or 'retencion' in nombre or 'regla' in nombre or 'catalogo' in nombre or 'causal' in nombre %} open{% endif %}>
+  <summary>Catálogos y reglas de compras</summary>
+  <nav class="catalogos-menu__contenido" aria-label="Catálogos de compras">
+    <a href="{% url 'compras:origenes' %}">Tipos de origen</a>
+    <a href="{% url 'compras:versiones_criterios' %}">Criterios FR-GDS-20</a>
+    <a href="{% url 'compras:cotizacion_tipos' %}">Tipos de cotización</a>
+    <a href="{% url 'compras:oferta_tarifas' %}">Tarifas de impuesto</a>
+    <a href="{% url 'compras:retenciones' %}">Retenciones de órdenes</a>
+    <a href="{% url 'compras:orden_reglas' %}">Aprobación de órdenes</a>
+    <a href="{% url 'compras:verificacion_catalogo' 'tipos' %}">Tipos de verificación</a>
+    <a href="{% url 'compras:proveedor_unico_causales' %}">Causales de proveedor único</a>
+    <a href="{% url 'compras:poliza_tipos' %}">Tipos de póliza</a>
+  </nav>
+</details>
+{% endwith %}

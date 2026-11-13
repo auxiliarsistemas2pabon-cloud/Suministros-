@@ -8,25 +8,26 @@ FR-GDS-27 Seguimiento.
 
 ## Tecnologías
 
+La [guía de arquitectura](docs/arquitectura.md) describe dónde modificar el
+backend, los componentes de plantillas, los estilos y la navegación por rol.
+
 - Python 3.13
 - Django 5.2
-- PostgreSQL 18 (en Docker, puerto 5433 del equipo)
+- SQLite para desarrollo local; PostgreSQL 18 opcional con puerto configurable
 - psycopg 3, django-axes, openpyxl, python-dotenv
 - Plantillas Django, CSS propio y JavaScript mínimo (sin frameworks de frontend)
 
 ## Requisitos previos (Windows)
 
 - [Python 3.13](https://www.python.org/downloads/) (marque "Add python.exe to PATH" al instalar)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Git para Windows](https://git-scm.com/download/win)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) si va a usar PostgreSQL con Docker
 
 ## Instalación en Windows (PowerShell)
 
-1. Clone el repositorio y entre a la carpeta:
+1. Abra la carpeta local del proyecto:
 
    ```powershell
-   git clone <url-del-repositorio> Suministros
-   cd Suministros
+   cd C:\Suministros
    ```
 
 2. Cree y active el entorno virtual:
@@ -63,10 +64,12 @@ FR-GDS-27 Seguimiento.
    python -c "import secrets; print(secrets.token_urlsafe(50))"
    ```
 
-   Para desarrollo defina también `DJANGO_DEBUG=True`, `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1`
-   y los datos de PostgreSQL (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`).
+   Para desarrollo local defina `DJANGO_DEBUG=True`,
+   `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1` y `DJANGO_BASE_DATOS=sqlite`.
+   Si usa PostgreSQL, seleccione `DJANGO_BASE_DATOS=postgresql` y complete
+   `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `POSTGRES_PORT`.
 
-5. Inicie PostgreSQL:
+5. Si eligió PostgreSQL, inícielo (omita este paso con SQLite):
 
    ```powershell
    docker compose up -d
@@ -90,11 +93,11 @@ FR-GDS-27 Seguimiento.
    python manage.py test
    ```
 
-8. Inicie el servidor de desarrollo y abra http://127.0.0.1:8000/ingresar/ (ingreso con su correo;
-   el administrador técnico, solo para desarrolladores, está en http://127.0.0.1:8000/admin/):
+8. Inicie el servidor de desarrollo y abra http://127.0.0.1:8001/ingresar/ (ingreso con su correo;
+   el administrador técnico, solo para desarrolladores, está en http://127.0.0.1:8001/admin/):
 
    ```powershell
-   python manage.py runserver
+   python manage.py runserver 127.0.0.1:8001
    ```
 
 ## Problemas frecuentes

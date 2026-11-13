@@ -1,33 +1,72 @@
 {% extends "base.html" %}
-
-{% block titulo %}Ingresar{% endblock %}
-
+{% block titulo %}
+  Ingresar
+{% endblock %}
 {% block contenido %}
-<section class="tarjeta tarjeta--estrecha">
-  <h1>Ingresar al sistema</h1>
-  <p>Escriba su correo y su contraseña.</p>
-  <p>Si usted es un proveedor nuevo, puede <a href="{% url 'portal:registro' %}">registrarse en el portal</a>.</p>
-
-  <form method="post" novalidate>
-    {% csrf_token %}
-    {% if form.non_field_errors %}
-    <div class="mensaje mensaje--error" role="alert">{{ form.non_field_errors|join:" " }}</div>
-    {% endif %}
-
-    <div class="campo">
-      <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
-      {{ form.username }}
-      {{ form.username.errors }}
-    </div>
-
-    <div class="campo">
-      <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
-      {{ form.password }}
-      {{ form.password.errors }}
-    </div>
-
-    <input type="hidden" name="next" value="{{ next }}">
-    <button type="submit" class="boton">Ingresar</button>
-  </form>
-</section>
+  <div class="acceso-sistema">
+    <section class="acceso-sistema__presentacion">
+      <span class="acceso-sistema__insignia">Gestión de suministros</span>
+      <h2>
+        Todo su proceso.
+        <br>
+        Una misma dirección.
+      </h2>
+      <p>Organice la información de compras y mantenga cada decisión conectada con su respaldo.</p>
+      <div class="acceso-sistema__pasos">
+        <div>
+          {% include 'componentes/icono.html' with nombre='calendario' %}
+          <span>Planee con claridad</span>
+        </div>
+        <div>
+          {% include 'componentes/icono.html' with nombre='orden' %}
+          <span>Compre con trazabilidad</span>
+        </div>
+        <div>
+          {% include 'componentes/icono.html' with nombre='seguimiento' %}
+          <span>Acompañe cada entrega</span>
+        </div>
+      </div>
+      <span class="acceso-sistema__pie">Personas, documentos y operaciones conectados.</span>
+    </section>
+    <section class="acceso-sistema__formulario">
+      <div class="acceso-sistema__titulo">
+        <p class="sobre-titulo">Le damos la bienvenida</p>
+        <h1>Ingresar al sistema</h1>
+        <p class="texto-suave">Escriba su correo y su contraseña.</p>
+      </div>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="mensaje mensaje--error" role="alert">
+            {{ form.non_field_errors|join:' ' }}
+          </div>
+        {% endif %}
+        <div class="campo">
+          <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+        <div class="campo">
+          <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+          {{ form.password }}
+          {{ form.password.errors }}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="boton boton--ancho">
+          Ingresar
+          {% include 'componentes/icono.html' with nombre='flecha' %}
+        </button>
+      </form>
+      <div class="acceso-sistema__registro">
+        <strong>¿Es un proveedor nuevo?</strong>
+        <p>
+          Puede
+          <a href="{% url 'portal:registro' %}">
+            registrarse en el portal
+          </a>
+          y presentar sus documentos.
+        </p>
+      </div>
+    </section>
+  </div>
 {% endblock %}

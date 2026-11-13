@@ -65,6 +65,15 @@ class OrdenesTests(TestCase):
         datos.update(cambios)
         return servicios.crear_orden_desde_decision(self.decision, **datos)
 
+    def test_inicio_muestra_la_orden_reciente_con_su_proveedor_y_estado(self):
+        orden = self.crear()[0]
+        self.client.force_login(self.admin)
+        respuesta = self.client.get(reverse("inicio"))
+        self.assertEqual([dato.pk for dato in respuesta.context["ordenes_recientes"]], [orden.pk])
+        self.assertContains(respuesta, reverse("compras:orden_detalle", args=[orden.pk]))
+        self.assertContains(respuesta, orden.razon_social)
+        self.assertContains(respuesta, orden.get_estado_display())
+
     def guardar(self, orden, lineas=None, **cambios):
         datos = dict(lineas=lineas or [{"id": l.pk, "cantidad": l.cantidad, "precio_unitario": l.precio_unitario} for l in orden.lineas.all()],
             fecha_elaboracion=orden.fecha_elaboracion, condiciones_pago=orden.condiciones_pago, revision_esperada=orden.revision, actor=self.admin, motivo=MOTIVO)

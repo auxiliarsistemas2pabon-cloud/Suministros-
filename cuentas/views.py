@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 
 from cuentas import servicios
+from cuentas.consultas import resumen_inicio
 from cuentas.forms import FormularioCambioClave, FormularioIngreso
 from cuentas.models import Rol
 from cuentas.permisos import rol_requerido
@@ -36,4 +37,4 @@ class CambiarClave(vistas_auth.PasswordChangeView):
 def inicio(request):
     if request.user.rol == Rol.PROVEEDOR:
         return redirect("portal:inicio")
-    return render(request, "cuentas/inicio.html", {"accesos": servicios.accesos_para(request.user)})
+    return render(request, "cuentas/inicio.html", {"accesos": servicios.accesos_para(request.user), **resumen_inicio(request.user)})

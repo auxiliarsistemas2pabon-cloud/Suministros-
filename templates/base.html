@@ -4,57 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Inicio{% endblock %} · Gestión de Suministros</title>
-  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+  {% with version_interfaz="20261113-2" %}
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}?v={{ version_interfaz }}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ version_interfaz }}">
+  <link rel="stylesheet" href="{% static 'css/componentes.css' %}?v={{ version_interfaz }}">
+  <link rel="stylesheet" href="{% static 'css/modulos.css' %}?v={{ version_interfaz }}">
+  <link rel="stylesheet" href="{% static 'css/estructura.css' %}?v={{ version_interfaz }}">
+  <link rel="stylesheet" href="{% static 'css/panel.css' %}?v={{ version_interfaz }}">
+  <script src="{% static 'js/interfaz.js' %}?v={{ version_interfaz }}" defer></script>
+  {% endwith %}
   {% block head_extra %}{% endblock %}
 </head>
-<body>
+<body class="{% if user.is_authenticated and not user.debe_cambiar_clave %}aplicacion{% else %}pagina-publica{% endif %}">
+  {% include 'componentes/iconos.html' %}
   <a class="saltar-contenido" href="#contenido">Saltar al contenido</a>
-
-  <header class="encabezado">
-    <div class="encabezado__interno">
-      <p class="encabezado__nombre">Sistema de Gestión de Suministros</p>
-      {% if user.is_authenticated %}
-      <div class="encabezado__usuario">
-        <span>{{ user.get_full_name|default:user.get_username }}</span>
-        {% if user.rol == "administrador" or user.rol == "desarrollador" %}<form method="get" action="{% url 'configuracion:buscar' %}" role="search" class="busqueda-superior"><label for="busqueda-superior">Buscar NIT o consecutivo</label><input id="busqueda-superior" name="q" maxlength="200" placeholder="NIT o consecutivo"><button type="submit" class="boton boton--claro">Buscar</button></form>{% endif %}
-        <a class="encabezado__enlace" href="{% url 'cuentas:cambiar_clave' %}">Cambiar clave</a>
-        <form method="post" action="{% url 'cuentas:salir' %}" class="encabezado__salir">
-          {% csrf_token %}
-          <button type="submit" class="boton boton--claro">Cerrar sesión</button>
-        </form>
-      </div>
-      {% endif %}
+  <div class="app-layout">
+    {% if user.is_authenticated and not user.debe_cambiar_clave %}{% include 'componentes/barra_lateral.html' %}{% endif %}
+    <div class="app-principal">
+      {% include 'componentes/encabezado.html' %}
+      <main id="contenido" class="contenido">
+        {% include 'componentes/mensajes.html' %}
+        {% block contenido %}{% endblock %}
+      </main>
+      {% include 'componentes/pie.html' %}
     </div>
-    {% if user.is_authenticated and not user.debe_cambiar_clave %}
-    <nav class="menu" aria-label="Menú principal">
-      <ul class="menu__lista">
-        {% block menu %}
-        {% if user.rol != "proveedor" %}<li><a href="{% url 'inicio' %}"{% if request.path == "/" %} aria-current="page"{% endif %}>Inicio</a></li>{% endif %}
-        {# Accesos según el rol (cuentas/servicios.py: accesos_para); solo los que ya existen. #}
-        {% for acceso in accesos_menu %}
-        <li><a href="{{ acceso.url }}"{% if request.path == acceso.url %} aria-current="page"{% endif %}>{{ acceso.nombre }}</a></li>
-        {% endfor %}
-        {% endblock %}
-      </ul>
-    </nav>
-    {% endif %}
-  </header>
-
-  <main id="contenido" class="contenido">
-    {% if messages %}
-    <ul class="mensajes">
-      {% for message in messages %}
-      <li class="mensaje{% if message.tags %} mensaje--{{ message.tags }}{% endif %}"><span role="{% if message.level >= 30 %}alert{% else %}status{% endif %}">{{ message }}</span></li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
-    {% block contenido %}{% endblock %}
-  </main>
-
-  <footer class="pie">
-    <p>Sistema de Gestión de Suministros · Clínica · {% now "Y" %}</p>
-  </footer>
+  </div>
   {% block scripts %}{% endblock %}
 </body>
 </html>

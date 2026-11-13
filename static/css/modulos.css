@@ -1,0 +1,104 @@
+/* Variantes propias de los módulos de negocio. */
+/* Revisión de proyecciones y bitácora */
+
+.numero {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.lista-cambios {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.tabla-bitacora td {
+  vertical-align: top;
+}
+
+/* Valores vigentes distintos del aprobado (ajustes) */
+
+.celda-ajustada {
+  background: var(--ambar-claro);
+  color: var(--ambar);
+  font-weight: 600;
+}
+
+/* Proveedores: ficha y vigencia de documentos */
+
+.mensaje--info {
+  border-left-color: var(--azul);
+  background: var(--azul-claro);
+}
+
+.seccion {
+  margin-top: 1.5rem;
+}
+
+.ficha {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1.25rem;
+  margin: 0 0 1rem;
+}
+
+.ficha dt {
+  font-weight: 600;
+}
+
+.ficha dd {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .ficha {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vigencia {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Rojo solo para documentos ya vencidos. */
+.vigencia--vencido {
+  background: var(--rojo);
+  color: var(--blanco);
+}
+
+.vigencia--por-vencer {
+  background: var(--azul-claro);
+  color: var(--azul);
+  border: 1px solid var(--azul);
+}
+
+.vigencia--vigente {
+  background: var(--verde-claro);
+  color: var(--verde);
+}
+
+.vigencia--sin {
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  color: var(--texto-suave);
+}
+
+/* Enlace de una acción de borrar. */
+.enlace-peligro {
+  color: var(--rojo);
+}
+
+.enlace-peligro:hover {
+  color: var(--rojo-hover);
+}
+
+/* Menor costo con impuestos en el comparativo de cotización; incluye empates. */
+.comparativo-menor {
+  background: #dbeafe;
+  color: #172554;
+}
+
