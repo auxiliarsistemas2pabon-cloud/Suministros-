@@ -83,7 +83,8 @@ de las variables, las hojas se cargan en este orden:
 | `componentes.css` | Botones, formularios, tablas, filtros, mensajes y utilidades. |
 | `modulos.css` | Ajustes específicos de los procesos existentes. |
 | `estructura.css` | Distribución general, barra lateral, encabezado y navegación móvil. |
-| `panel.css` | Inicio, accesos, indicadores y presentación del ingreso. |
+| `panel.css` | Inicio, accesos e indicadores. |
+| `ingreso.css` | Presentación exclusiva del inicio de sesión; se carga solo en esa pantalla. |
 
 Cada archivo incluye las adaptaciones móviles de sus propios elementos.
 Las URL usan una versión compartida (`version_interfaz` en `base.html`). Al
@@ -92,6 +93,8 @@ la caché del navegador. Los SVG también declaran sus dimensiones y trazo en
 el marcado para conservar su tamaño mientras cargan los estilos.
 `static/js/interfaz.js` controla exclusivamente el menú adaptable; los scripts
 existentes de cada proceso siguen utilizando el bloque `scripts` de la base.
+`static/js/ingreso.js` permite mostrar u ocultar la clave mediante un botón
+accesible. Sin JavaScript el campo continúa oculto y el formulario permite entrar.
 No se incorporan dependencias de frontend ni recursos externos.
 
 ## Cómo continuar

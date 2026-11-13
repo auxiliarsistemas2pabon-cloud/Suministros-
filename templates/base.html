@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Inicio{% endblock %} · Gestión de Suministros</title>
-  {% with version_interfaz="20261113-2" %}
+  {% with version_interfaz="20261113-3" %}
   <link rel="stylesheet" href="{% static 'css/estilos.css' %}?v={{ version_interfaz }}">
   <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ version_interfaz }}">
   <link rel="stylesheet" href="{% static 'css/componentes.css' %}?v={{ version_interfaz }}">
@@ -15,13 +15,13 @@
   {% endwith %}
   {% block head_extra %}{% endblock %}
 </head>
-<body class="{% if user.is_authenticated and not user.debe_cambiar_clave %}aplicacion{% else %}pagina-publica{% endif %}">
+<body class="{% if user.is_authenticated and not user.debe_cambiar_clave %}aplicacion{% else %}pagina-publica{% endif %} {% block clase_pagina %}{% endblock %}">
   {% include 'componentes/iconos.html' %}
   <a class="saltar-contenido" href="#contenido">Saltar al contenido</a>
   <div class="app-layout">
     {% if user.is_authenticated and not user.debe_cambiar_clave %}{% include 'componentes/barra_lateral.html' %}{% endif %}
     <div class="app-principal">
-      {% include 'componentes/encabezado.html' %}
+      {% block encabezado %}{% include 'componentes/encabezado.html' %}{% endblock %}
       <main id="contenido" class="contenido">
         {% include 'componentes/mensajes.html' %}
         {% block contenido %}{% endblock %}

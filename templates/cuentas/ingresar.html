@@ -1,72 +1,82 @@
 {% extends "base.html" %}
-{% block titulo %}
-  Ingresar
+{% load static %}
+{% block titulo %}Ingresar{% endblock %}
+{% block clase_pagina %}pagina-ingreso{% endblock %}
+{% block encabezado %}{% endblock %}
+{% block head_extra %}
+  <link rel="stylesheet" href="{% static 'css/ingreso.css' %}?v=20261113-4">
 {% endblock %}
 {% block contenido %}
-  <div class="acceso-sistema">
-    <section class="acceso-sistema__presentacion">
-      <span class="acceso-sistema__insignia">Gestión de suministros</span>
-      <h2>
-        Todo su proceso.
-        <br>
-        Una misma dirección.
-      </h2>
-      <p>Organice la información de compras y mantenga cada decisión conectada con su respaldo.</p>
-      <div class="acceso-sistema__pasos">
-        <div>
-          {% include 'componentes/icono.html' with nombre='calendario' %}
-          <span>Planee con claridad</span>
-        </div>
-        <div>
-          {% include 'componentes/icono.html' with nombre='orden' %}
-          <span>Compre con trazabilidad</span>
-        </div>
-        <div>
-          {% include 'componentes/icono.html' with nombre='seguimiento' %}
-          <span>Acompañe cada entrega</span>
-        </div>
-      </div>
-      <span class="acceso-sistema__pie">Personas, documentos y operaciones conectados.</span>
-    </section>
-    <section class="acceso-sistema__formulario">
-      <div class="acceso-sistema__titulo">
-        <p class="sobre-titulo">Le damos la bienvenida</p>
-        <h1>Ingresar al sistema</h1>
-        <p class="texto-suave">Escriba su correo y su contraseña.</p>
-      </div>
-      <form method="post" novalidate>
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-          <div class="mensaje mensaje--error" role="alert">
-            {{ form.non_field_errors|join:' ' }}
-          </div>
-        {% endif %}
-        <div class="campo">
-          <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+<div class="ingreso">
+  <section class="ingreso__presentacion" aria-labelledby="presentacion-titulo">
+    <div class="ingreso__marca">
+      <span class="ingreso__monograma" aria-hidden="true">GS</span>
+      <span>Gestión de<span class="ingreso__marca-detalle">suministros</span></span>
+    </div>
+    <div class="ingreso__introduccion">
+      <p class="ingreso__etiqueta">Un proceso conectado</p>
+      <h2 id="presentacion-titulo">Su operación,<br>en un solo lugar.</h2>
+      <p>Planee las compras, organice sus proveedores y acompañe cada entrega.</p>
+    </div>
+    <ol class="ingreso__proceso" aria-label="Procesos disponibles">
+      <li>
+        <span class="ingreso__icono-proceso">{% include 'componentes/icono.html' with nombre='calendario' %}</span>
+        <div><strong>Planeación</strong><span>Las necesidades de cada área.</span></div>
+        <span class="ingreso__numero" aria-hidden="true">01</span>
+      </li>
+      <li>
+        <span class="ingreso__icono-proceso">{% include 'componentes/icono.html' with nombre='orden' %}</span>
+        <div><strong>Compras</strong><span>Ofertas, decisiones y órdenes.</span></div>
+        <span class="ingreso__numero" aria-hidden="true">02</span>
+      </li>
+      <li>
+        <span class="ingreso__icono-proceso">{% include 'componentes/icono.html' with nombre='seguimiento' %}</span>
+        <div><strong>Seguimiento</strong><span>Cada entrega con su respaldo.</span></div>
+        <span class="ingreso__numero" aria-hidden="true">03</span>
+      </li>
+    </ol>
+    <p class="ingreso__cierre">Información organizada. Decisiones con respaldo.</p>
+  </section>
+  <section class="ingreso__acceso" aria-labelledby="ingreso-titulo">
+    <div class="ingreso__cabecera">
+      <span class="ingreso__distintivo">Acceso al sistema</span>
+      <h1 id="ingreso-titulo">Ingresar al sistema</h1>
+      <p>Bienvenido. Continúe con su cuenta de trabajo.</p>
+    </div>
+    <form method="post" class="ingreso__formulario" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="mensaje mensaje--error" role="alert">{{ form.non_field_errors|join:' ' }}</div>
+      {% endif %}
+      <div class="ingreso__campo">
+        <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+        <div class="ingreso__control{% if form.username.errors %} ingreso__control--error{% endif %}">
+          <svg class="icono" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
           {{ form.username }}
-          {{ form.username.errors }}
         </div>
-        <div class="campo">
-          <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
-          {{ form.password }}
-          {{ form.password.errors }}
-        </div>
-        <input type="hidden" name="next" value="{{ next }}">
-        <button type="submit" class="boton boton--ancho">
-          Ingresar
-          {% include 'componentes/icono.html' with nombre='flecha' %}
-        </button>
-      </form>
-      <div class="acceso-sistema__registro">
-        <strong>¿Es un proveedor nuevo?</strong>
-        <p>
-          Puede
-          <a href="{% url 'portal:registro' %}">
-            registrarse en el portal
-          </a>
-          y presentar sus documentos.
-        </p>
+        {{ form.username.errors }}
       </div>
-    </section>
-  </div>
+      <div class="ingreso__campo">
+        <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+        <div class="ingreso__control{% if form.password.errors %} ingreso__control--error{% endif %}">
+          <svg class="icono" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg>
+          {{ form.password }}
+          <button type="button" class="ingreso__visibilidad" data-visibilidad-clave aria-controls="{{ form.password.id_for_label }}" aria-label="Mostrar clave" hidden>Mostrar</button>
+        </div>
+        {{ form.password.errors }}
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="boton ingreso__enviar">Ingresar {% include 'componentes/icono.html' with nombre='flecha' %}</button>
+      <p class="ingreso__ayuda">¿Necesita recuperar el acceso?<br>Comuníquese con un administrador del sistema.</p>
+    </form>
+    <a class="ingreso__proveedor" href="{% url 'portal:registro' %}">
+      <span class="ingreso__proveedor-icono">{% include 'componentes/icono.html' with nombre='personas' %}</span>
+      <span><strong>¿Es un proveedor nuevo?</strong><span>Regístrese en el portal de proveedores</span></span>
+      {% include 'componentes/icono.html' with nombre='flecha' %}
+    </a>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+  <script src="{% static 'js/ingreso.js' %}?v=20261113-4" defer></script>
 {% endblock %}

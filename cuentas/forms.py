@@ -30,12 +30,19 @@ def exigir_motivo(formulario):
 class FormularioIngreso(AuthenticationForm):
     username = forms.EmailField(
         label="Correo electrónico",
-        widget=forms.EmailInput(attrs={"autofocus": True, "autocomplete": "email"}),
+        widget=forms.EmailInput(attrs={
+            "autofocus": True,
+            "autocomplete": "email",
+            "placeholder": "nombre@organizacion.com",
+            "inputmode": "email",
+            "autocapitalize": "none",
+            "spellcheck": "false",
+        }),
     )
     password = forms.CharField(
         label="Clave",
         strip=False,
-        widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password", "placeholder": "Escriba su clave"}),
     )
 
     # El mismo mensaje para correo inexistente, clave errada o cuenta inactiva:

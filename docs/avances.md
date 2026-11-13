@@ -1,5 +1,23 @@
 # Avances del proyecto
 
+## 2026-11-13 · Mejora visual del inicio de sesión
+
+- Presentación en dos columnas con marca, resumen de procesos y formulario
+  independiente; fondo suave, tipografía, contraste, campos con iconos y acceso
+  destacado al registro de proveedores. En pantallas pequeñas se reduce la
+  presentación a la marca y se utiliza una sola columna.
+- CSS exclusivo en `static/css/ingreso.css`; se retiraron los estilos antiguos
+  del ingreso de `panel.css`. La plantilla base admite una clase adicional y
+  personalización del encabezado sin cambiar las otras pantallas.
+- Campos con autocompletado, indicación de formato y botón Mostrar/Ocultar clave.
+  El botón se habilita con JavaScript; el ingreso sigue funcionando sin él.
+  Se mantienen CSRF, errores del servidor, destino posterior y reglas de acceso.
+- Revisión visual en navegador integrado, incluida vista de 390 píxeles,
+  validación de campos vacíos y cambio de visibilidad con texto ficticio. Se
+  limpió el formulario y se restauró la vista normal del navegador.
+- `check` y sintaxis JavaScript correctos. Las 134 pruebas de cuentas y
+  configuración pasaron, con una omisión específica de PostgreSQL.
+
 ## 2026-11-13 · Corrección de la carga visual
 
 - Se reprodujo el fallo en el navegador integrado: el HTML nuevo aparecía sin
