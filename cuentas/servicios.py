@@ -240,6 +240,7 @@ ACCESOS_COORDINADOR = [
 ]
 
 ACCESOS_ADMIN = [
+    Acceso("Información institucional", "Formatos originales, histórico y consecutivos de las áreas.", "fuentes:inicio"),
     Acceso("Listados", "Filtros por módulo, NIT, periodo y exportación con el mismo alcance.", "configuracion:listados"),
     Acceso("Seguimientos", "Entregas, eventos, pendientes y reportes FR-GDS-27.", "seguimientos:lista"),
     Acceso("Compras", "Necesidades y listas de elegibles.", "compras:necesidades"),

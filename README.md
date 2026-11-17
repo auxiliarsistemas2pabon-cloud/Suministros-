@@ -6,6 +6,11 @@ FR-GDS-11 Proyección anual → FR-GDS-14 Requisitos de selección de proveedore
 FR-GDS-20 Lista de elegibles → FR-GDS-28 Cotización → FR-GDS-21 Orden de compra →
 FR-GDS-27 Seguimiento.
 
+Los formatos y datos reales se consultan en **Información institucional**
+(`/suministros/`) de la plataforma principal. Consulte la
+[guía de carga institucional](docs/carga_institucional.md) para los originales,
+históricos, matrices y numeración por área, sin trasladar operaciones de ejemplo.
+
 ## Tecnologías
 
 La [guía de arquitectura](docs/arquitectura.md) describe dónde modificar el

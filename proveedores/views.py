@@ -64,7 +64,8 @@ def lista(request):
 def formulario(request, pk=None):
     proveedor = get_object_or_404(Proveedor, pk=pk) if pk else Proveedor()
     es_nuevo = not proveedor.pk
-    formulario = forms.FormularioProveedor(request.POST or None, instance=proveedor)
+    inicial = {"razon_social": request.GET.get("nombre", "").strip()[:200]} if es_nuevo and request.method == "GET" else {}
+    formulario = forms.FormularioProveedor(request.POST or None, instance=proveedor, initial=inicial)
     if request.method == "POST" and formulario.is_valid():
         try:
             servicios.guardar_proveedor(

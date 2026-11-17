@@ -4,6 +4,7 @@ from cuentas.servicios import Acceso, accesos_para
 
 GRUPOS = {"operacion": "Operación", "planeacion": "Planeación", "administracion": "Administración"}
 UBICACION = {
+    "fuentes:inicio": ("operacion", "documento"),
     "compras:necesidades": ("operacion", "compras"), "compras:cotizaciones": ("operacion", "documento"),
     "compras:ordenes": ("operacion", "orden"), "proveedores:lista": ("operacion", "personas"),
     "seguimientos:lista": ("operacion", "seguimiento"), "portal:inicio": ("operacion", "documento"),
@@ -37,7 +38,7 @@ def _seccion(request):
         return "proyecciones:revision"
     if espacio == "configuracion":
         return "configuracion:listados" if nombre in ("buscar", "listados", "listado_global") else "configuracion:inicio"
-    return {"proveedores": "proveedores:lista", "seguimientos": "seguimientos:lista", "bitacora": "bitacora:consulta",
+    return {"fuentes": "fuentes:inicio", "proveedores": "proveedores:lista", "seguimientos": "seguimientos:lista", "bitacora": "bitacora:consulta",
         "portal": "portal:inicio", "admin": "admin:index"}.get(espacio, "inicio" if getattr(request, "path", "") == "/" else "")
 
 

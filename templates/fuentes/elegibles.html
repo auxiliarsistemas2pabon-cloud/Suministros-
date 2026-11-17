@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block titulo %}Elegibles del archivo institucional{% endblock %}
+{% block contenido %}
+{% include "fuentes/_nav.html" %}
+<h1>Elegibles del archivo institucional</h1><p>Proveedores, puntajes y puestos registrados en el FR-GDS-20 original. Para una compra nueva, complete la ficha con el NIT real y siga la evaluación vigente.</p>
+<form method="get"><label for="q">Proveedor, área u observación</label><input id="q" name="q" value="{{ busqueda }}" maxlength="200"><button type="submit">Buscar</button></form><p>{{ pagina.paginator.count }} registros encontrados.</p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Proveedor y área</th><th>Objeto / observaciones</th><th>Resultado original</th><th>Origen</th></tr></thead><tbody>{% for registro in pagina %}<tr><td>{{ registro.proveedor }}<br><small>{{ registro.area_original }}</small><br><a href="{% url 'proveedores:nuevo' %}?nombre={{ registro.proveedor|urlencode }}">Completar ficha con NIT real</a></td><td>{{ registro.objeto }}<br>{{ registro.observaciones|linebreaksbr }}</td><td>{{ registro.puntaje_original }}<br>{{ registro.puesto_original }}</td><td><a href="{% url 'fuentes:detalle' registro.fuente_id %}?hoja={{ registro.hoja|urlencode }}&amp;q={{ registro.proveedor|urlencode }}">{{ registro.hoja }} · fila {{ registro.fila }}</a></td></tr>{% empty %}<tr><td colspan="4">No hay coincidencias.</td></tr>{% endfor %}</tbody></table></div>
+{% include "configuracion/_paginacion.html" %}
+{% endblock %}

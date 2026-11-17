@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titulo %}Información institucional{% endblock %}
+{% block contenido %}
+{% include "fuentes/_nav.html" %}
+<div class="encabezado-pagina"><div><p class="sobre-titulo">Gestión de Suministros</p><h1>Información institucional</h1><p>Consulte los formatos y la información cargada desde los archivos de la institución.</p></div></div>
+<div class="tabla-contenedor"><table class="tabla"><caption>Información incorporada</caption><thead><tr><th>Compras históricas</th><th>Registros de elegibles</th><th>Series de numeración</th></tr></thead><tbody><tr><td><a href="{% url 'fuentes:historico' %}">{{ historicas }}</a></td><td><a href="{% url 'fuentes:elegibles' %}">{{ elegibles }}</a></td><td><a href="{% url 'fuentes:consecutivos' %}">{{ series }}</a></td></tr></tbody></table></div>
+<h2>Formatos originales</h2>
+<p>Cada archivo conserva su contenido, hojas y referencias de origen. Las compras nuevas se tramitan en los módulos operativos de la plataforma.</p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Código</th><th>Formato</th><th>Fecha de carga</th><th>Acciones</th></tr></thead><tbody>
+{% for fuente in formatos %}<tr><td>{{ fuente.codigo }}</td><td>{{ fuente.titulo }}<br><small>{{ fuente.nombre_original }}</small></td><td>{{ fuente.cargado_el|date:"d/m/Y H:i" }}</td><td><a href="{% url 'fuentes:detalle' fuente.pk %}">Consultar contenido</a> · <a href="{% url 'fuentes:descargar' fuente.pk %}">Descargar original</a></td></tr>{% empty %}<tr><td colspan="4">Todavía no se han cargado los formatos institucionales.</td></tr>{% endfor %}
+</tbody></table></div>
+<h2>Continuar el proceso</h2>
+<ul>
+  <li><a href="{% url 'proyecciones:abrir_periodo' %}">Preparar la proyección anual FR-GDS-11</a>. El archivo recibido es un formato sin líneas de compra diligenciadas.</li>
+  <li><a href="{% url 'proveedores:lista' %}">Gestionar proveedores y sus evaluaciones FR-GDS-14</a>. Complete la identificación y los documentos de cada proveedor antes de verificarlo.</li>
+  <li><a href="{% url 'proveedores:matrices' %}">Revisar y publicar la matriz FR-GDS-14 cargada</a>. Se conservaron los 26 requisitos y sus pesos por categoría; el archivo presenta encabezado v04 y un cambio v05.</li>
+  <li><a href="{% url 'compras:necesidades' %}">Registrar necesidades y listas de elegibles</a>, <a href="{% url 'compras:cotizaciones' %}">comparar cotizaciones</a> y <a href="{% url 'compras:ordenes' %}">gestionar órdenes</a>.</li>
+  <li><a href="{% url 'seguimientos:lista' %}">Registrar entregas y seguimientos de compras nuevas</a>. El histórico recibido permanece consultable con su hoja y fila de origen.</li>
+</ul>
+{% endblock %}

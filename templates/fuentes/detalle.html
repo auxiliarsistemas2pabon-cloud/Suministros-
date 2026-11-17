@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}{{ fuente.codigo }}{% endblock %}
+{% block contenido %}
+{% include "fuentes/_nav.html" %}
+<h1>{{ fuente.codigo }} · {{ fuente.titulo }}</h1><p>{{ fuente.nombre_original }}</p>
+<p><a class="boton" href="{% url 'fuentes:descargar' fuente.pk %}">Descargar original</a></p>
+<form method="get"><label for="hoja">Hoja</label><select id="hoja" name="hoja">{% for h in hojas %}<option value="{{ h.nombre }}"{% if h.nombre == nombre_hoja %} selected{% endif %}>{{ h.nombre }}</option>{% endfor %}</select><label for="q">Buscar en la hoja</label><input id="q" name="q" value="{{ busqueda }}" maxlength="200"><button type="submit">Consultar</button></form>
+<p>{{ pagina.paginator.count }} filas con información. Se muestran los valores guardados en el archivo.</p>
+{% for fila in pagina %}<section class="panel-seccion"><h2>Fila {{ fila.numero }}</h2><div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Celda de origen</th><th>Valor original</th></tr></thead><tbody>{% for celda in fila.celdas %}<tr><td>{{ celda.celda }}</td><td>{{ celda.valor|linebreaksbr }}</td></tr>{% endfor %}</tbody></table></div></section>{% endfor %}
+{% include "configuracion/_paginacion.html" %}
+<details><summary>Identificación de la fuente</summary><p>SHA-256: <code>{{ fuente.sha256 }}</code></p></details>
+{% endblock %}

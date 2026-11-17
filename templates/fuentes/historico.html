@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Histórico institucional de compras{% endblock %}
+{% block contenido %}
+{% include "fuentes/_nav.html" %}
+<h1>Histórico institucional de compras</h1>
+<p>Referencias del FR-GDS-27 recibido. Se conservan las órdenes combinadas, los valores y los seguimientos originales. Una referencia repetida puede corresponder a la misma orden seguida en varias hojas.</p>
+<form method="get"><label for="q">Orden, proveedor u objeto</label><input id="q" name="q" value="{{ busqueda }}" maxlength="200"><label for="hoja">Hoja de origen</label><select id="hoja" name="hoja"><option value="">Todas</option>{% for nombre in hojas %}<option value="{{ nombre }}"{% if nombre == hoja %} selected{% endif %}>{{ nombre }}</option>{% endfor %}</select><button type="submit">Buscar</button></form>
+<p>{{ pagina.paginator.count }} referencias encontradas.</p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Orden original</th><th>Proveedor</th><th>Objeto y valor</th><th>Origen y seguimientos</th></tr></thead><tbody>
+{% for compra in pagina %}<tr><td>{{ compra.orden_original }}</td><td>{{ compra.proveedor_original|default:"Pendiente en el archivo" }}</td><td>{{ compra.objeto|linebreaksbr }}<br><strong>{{ compra.valor_original }}</strong></td><td><a href="{% url 'fuentes:detalle' compra.fuente_id %}?hoja={{ compra.hoja|urlencode }}&amp;q={{ compra.orden_original|urlencode }}">{{ compra.hoja }} · fila {{ compra.fila }}</a><details><summary>Ver seguimientos originales</summary><ol>{% for gestion in compra.seguimientos %}<li>{{ gestion|default:"Sin registro"|linebreaksbr }}</li>{% endfor %}</ol></details></td></tr>{% empty %}<tr><td colspan="4">No hay referencias que coincidan con la búsqueda.</td></tr>{% endfor %}
+</tbody></table></div>
+{% include "configuracion/_paginacion.html" %}
+{% endblock %}

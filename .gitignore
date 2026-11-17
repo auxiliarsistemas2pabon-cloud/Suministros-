@@ -23,3 +23,6 @@ __pycache__/
 *.pyc
 # Base, archivos privados y claves del ejemplo local. No son código del proyecto.
 .demostracion/
+
+# Documentos suministrados y controles locales del proyecto
+entregables/gestion_suministros/

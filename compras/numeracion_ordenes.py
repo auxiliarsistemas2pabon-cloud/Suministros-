@@ -26,7 +26,7 @@ def reglas_actuales():
 
 
 def formatear(numero, anio, reglas):
-    partes = [reglas["prefijo"]]
+    partes = [reglas["prefijo"]] if reglas["prefijo"] else []
     if reglas["incluir_anio"]:
         partes.append(str(anio))
     partes.append(str(numero).zfill(reglas["longitud"]))
@@ -59,14 +59,29 @@ def numerar_al_emitir(orden, *, actor, motivo, revision_esperada=None):
     reglas = reglas_actuales()
     instante = timezone.now()
     anio = timezone.localdate(instante).year
-    clave = f"anio:{anio}" if reglas["reinicio_anual"] else "global"
-    ContadorOrdenCompra.objects.get_or_create(clave=clave, defaults={"ultimo": 0})
+    from fuentes.models import SerieArea
+    serie = SerieArea.objects.select_for_update().filter(area_id=orden.cotizacion.area_id).first()
+    corte = 0
+    if serie:
+        if not serie.habilitada or not serie.area.activa:
+            raise ValidationError("La serie del área está deshabilitada para emitir órdenes.")
+        reglas.update(prefijo="" if serie.sin_prefijo else serie.codigo, incluir_anio=False,
+                      longitud=serie.longitud, reinicio_anual=False, area_id=serie.area_id,
+                      fuente_sha256=serie.fuente.sha256, corte_historico=serie.ultimo_historico)
+        clave, corte = serie.clave_contador, serie.ultimo_historico
+    else:
+        if SerieArea.objects.exists():
+            raise ValidationError("El área no tiene una serie institucional configurada. Suministros debe asignarle su código y corte antes de emitir.")
+        clave = f"anio:{anio}" if reglas["reinicio_anual"] else "global"
+    ContadorOrdenCompra.objects.get_or_create(clave=clave, defaults={"ultimo": corte})
     contador = ContadorOrdenCompra.objects.select_for_update().get(pk=clave)
     usadas = OrdenCompra.objects.filter(numero__isnull=False)
-    if reglas["reinicio_anual"]:
+    if serie:
+        usadas = usadas.filter(cotizacion__area_id=serie.area_id)
+    elif reglas["reinicio_anual"]:
         usadas = usadas.filter(anio_consecutivo=anio)
     maximo = usadas.aggregate(maximo=Max("numero"))["maximo"] or 0
-    siguiente = max(contador.ultimo, maximo) + 1
+    siguiente = max(contador.ultimo, maximo, corte) + 1
     # Conserva unicidad incluso ante cambios de prefijo, ancho o modo de reinicio.
     while OrdenCompra.objects.filter(consecutivo=formatear(siguiente, anio, reglas)).exists():
         siguiente += 1
