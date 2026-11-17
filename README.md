@@ -11,6 +11,9 @@ FR-GDS-27 Seguimiento.
 La [guía de arquitectura](docs/arquitectura.md) describe dónde modificar el
 backend, los componentes de plantillas, los estilos y la navegación por rol.
 
+El [ejemplo con el consolidado FR-GDS-11](docs/ejemplo_consolidado.md) explica el
+recorrido completo en una base local independiente, disponible en el puerto 8002.
+
 - Python 3.13
 - Django 5.2
 - SQLite para desarrollo local; PostgreSQL 18 opcional con puerto configurable

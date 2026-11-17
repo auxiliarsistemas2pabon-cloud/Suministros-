@@ -545,7 +545,8 @@ class LineasVistasTests(TestCase):
         self.client.force_login(self.coordinador)
         respuesta = self.client.get(self.url)
         self.assertContains(respuesta, 'aria-label="Cantidad de enero, línea 1"')
-        self.assertContains(respuesta, 'aria-label="Precio estimado, línea nueva"')
+        self.assertContains(respuesta, 'aria-label="Precio unitario estimado de referencia, línea nueva"')
+        self.assertContains(respuesta, 'aria-label="Costo proyectado total informado, línea nueva"')
 
 
 class LineaServicioTests(TestCase):

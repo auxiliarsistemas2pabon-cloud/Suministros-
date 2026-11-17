@@ -84,7 +84,8 @@ class LineaAdmin(SoloLecturaAdmin):
         "proyeccion",
         "unidad",
         "total_anual_admin",
-        "precio_estimado",
+        "precio_estimado_admin",
+        "costo_proyectado_total",
         "costo_anual_admin",
         "cantidad_autorizada",
     ]
@@ -95,6 +96,10 @@ class LineaAdmin(SoloLecturaAdmin):
     @admin.display(description="total anual", ordering="cantidad_enero")
     def total_anual_admin(self, obj):
         return obj.total_anual
+
+    @admin.display(description="precio unitario estimado", ordering="precio_estimado")
+    def precio_estimado_admin(self, obj):
+        return None if obj.costo_proyectado_total is not None and obj.precio_estimado == 0 else obj.precio_estimado
 
     @admin.display(description="costo anual")
     def costo_anual_admin(self, obj):

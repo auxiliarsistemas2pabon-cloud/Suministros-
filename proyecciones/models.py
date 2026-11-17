@@ -296,6 +296,15 @@ class Linea(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0"))],
     )
+    costo_proyectado_total = models.DecimalField(
+        "costo proyectado total informado",
+        max_digits=30,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0"))],
+        help_text="Total anual informado. Si se indica, prevalece sobre cantidades por precio unitario; cero es un valor válido.",
+    )
     cantidad_autorizada = models.PositiveIntegerField(
         "cantidad autorizada",
         null=True,
@@ -332,6 +341,11 @@ class Linea(models.Model):
                 violation_error_message="El precio estimado no puede ser negativo.",
             ),
             models.CheckConstraint(
+                condition=models.Q(costo_proyectado_total__isnull=True) | models.Q(costo_proyectado_total__gte=0),
+                name="linea_costo_total_no_negativo",
+                violation_error_message="El costo proyectado total no puede ser negativo.",
+            ),
+            models.CheckConstraint(
                 condition=models.Q(cantidad_autorizada__gte=0) | models.Q(cantidad_autorizada__isnull=True),
                 name="linea_autorizada_no_negativa",
                 violation_error_message="La cantidad autorizada no puede ser negativa.",
@@ -348,7 +362,9 @@ class Linea(models.Model):
 
     @property
     def costo_anual(self):
-        """Costo anual calculado sin convertir los montos a float."""
+        """Total informado o cálculo por cantidades, conservando los montos Decimal."""
+        if self.costo_proyectado_total is not None:
+            return self.costo_proyectado_total
         if self.precio_estimado is None:
             return Decimal("0")
         return Decimal(self.total_anual) * self.precio_estimado
@@ -366,7 +382,7 @@ class Linea(models.Model):
         super().save(*args, **kwargs)
 
 
-CAMPOS_AJUSTABLES = ("cantidad_autorizada", "precio_estimado", *CAMPOS_CANTIDADES_MENSUALES)
+CAMPOS_AJUSTABLES = ("cantidad_autorizada", "precio_estimado", "costo_proyectado_total", *CAMPOS_CANTIDADES_MENSUALES)
 
 MENSAJE_SOLO_INSERCION = "Este registro es histórico: no se modifica ni se borra."
 

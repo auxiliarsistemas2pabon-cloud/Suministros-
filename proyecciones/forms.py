@@ -66,6 +66,7 @@ class FormularioLinea(forms.ModelForm):
             "unidad",
             *CAMPOS_CANTIDADES_MENSUALES,
             "precio_estimado",
+            "costo_proyectado_total",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -78,6 +79,13 @@ class FormularioLinea(forms.ModelForm):
             )
         self.fields["precio_estimado"].widget.attrs.update(
             {"data-precio": "", "inputmode": "decimal", "min": "0", "step": "0.01"}
+        )
+        self.fields["precio_estimado"].label = "Precio unitario estimado de referencia"
+        # La tabla explica esta regla fuera de las casillas; no crear referencias
+        # ARIA a textos de ayuda que el formset no renderiza dentro de cada fila.
+        self.fields["costo_proyectado_total"].help_text = ""
+        self.fields["costo_proyectado_total"].widget.attrs.update(
+            {"data-costo-informado": "", "inputmode": "decimal", "min": "0", "step": "0.01"}
         )
         unidades = UnidadMedida.objects.filter(activa=True)
         if self.instance.pk and self.instance.unidad_id:

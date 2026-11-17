@@ -20,13 +20,13 @@
 
   {% if editable %}
   <p><a href="{% url 'proyecciones:importar_excel' proyeccion.pk %}">Importar líneas desde Excel</a> · <a href="{% url 'proyecciones:plantilla_excel' %}">Descargar plantilla Excel</a></p>
-  <p class="texto-suave">Puede diligenciar su proyección. El periodo está abierto.</p>
+  <p class="texto-suave">Puede diligenciar su proyección. El periodo está abierto.</p><p class="texto-suave">El total anual informado se conserva tal como fue registrado; si está vacío, el costo se calcula con las cantidades y el precio unitario estimado. Cero es un total informado válido.</p>
   <form method="post" action="{% url 'proyecciones:mi_proyeccion_detalle' proyeccion.pk %}" id="formulario-lineas" data-prefix="lineas">
     {% csrf_token %}
     {{ formset.management_form }}
     <div class="tabla-contenedor">
       <table class="tabla tabla-lineas">
-        <thead><tr><th>Producto o servicio</th><th>Dependencia</th><th>Unidad</th><th>Enero</th><th>Febrero</th><th>Marzo</th><th>Abril</th><th>Mayo</th><th>Junio</th><th>Julio</th><th>Agosto</th><th>Septiembre</th><th>Octubre</th><th>Noviembre</th><th>Diciembre</th><th>Precio estimado</th><th>Total anual</th><th>Costo anual</th><th>Quitar</th></tr></thead>
+        <thead><tr><th>Producto o servicio</th><th>Dependencia</th><th>Unidad</th><th>Enero</th><th>Febrero</th><th>Marzo</th><th>Abril</th><th>Mayo</th><th>Junio</th><th>Julio</th><th>Agosto</th><th>Septiembre</th><th>Octubre</th><th>Noviembre</th><th>Diciembre</th><th>Precio unitario estimado</th><th>Total anual informado</th><th>Total anual</th><th>Costo anual</th><th>Quitar</th></tr></thead>
         <tbody id="lineas-contenedor">
         {% for form in formset %}
           <tr class="linea-form" data-linea>
@@ -45,17 +45,17 @@
             <td>{{ form.cantidad_octubre }}</td>
             <td>{{ form.cantidad_noviembre }}</td>
             <td>{{ form.cantidad_diciembre }}</td>
-            <td>{{ form.precio_estimado }}</td>
+            <td>{{ form.precio_estimado }}{% if form.instance.costo_proyectado_total != None and form.instance.precio_estimado == 0 %}<span class="ayuda">Sin referencia unitaria; se conserva el total informado.</span>{% endif %}</td><td>{{ form.costo_proyectado_total }}</td>
             <td><span data-total>{{ form.instance.total_anual }}</span></td>
             <td><span data-costo>{{ form.instance.costo_anual|floatformat:2 }}</span></td>
             <td>{{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Quitar</label></td>
           </tr>
-          {% if form.errors %}<tr><td colspan="19"><div class="mensaje mensaje--error" role="alert">{{ form.errors }}</div></td></tr>{% endif %}
+          {% if form.errors %}<tr><td colspan="20"><div class="mensaje mensaje--error" role="alert">{{ form.errors }}</div></td></tr>{% endif %}
         {% endfor %}
         </tbody>
       </table>
     </div>
-    <template id="linea-vacia">{% with form=formset.empty_form %}<tr class="linea-form" data-linea><td>{{ form.id }}{{ form.producto_servicio }}</td><td>{{ form.dependencia }}</td><td>{{ form.unidad }}</td><td>{{ form.cantidad_enero }}</td><td>{{ form.cantidad_febrero }}</td><td>{{ form.cantidad_marzo }}</td><td>{{ form.cantidad_abril }}</td><td>{{ form.cantidad_mayo }}</td><td>{{ form.cantidad_junio }}</td><td>{{ form.cantidad_julio }}</td><td>{{ form.cantidad_agosto }}</td><td>{{ form.cantidad_septiembre }}</td><td>{{ form.cantidad_octubre }}</td><td>{{ form.cantidad_noviembre }}</td><td>{{ form.cantidad_diciembre }}</td><td>{{ form.precio_estimado }}</td><td><span data-total>0</span></td><td><span data-costo>0,00</span></td><td>{{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Quitar</label></td></tr>{% endwith %}</template>
+    <template id="linea-vacia">{% with form=formset.empty_form %}<tr class="linea-form" data-linea><td>{{ form.id }}{{ form.producto_servicio }}</td><td>{{ form.dependencia }}</td><td>{{ form.unidad }}</td><td>{{ form.cantidad_enero }}</td><td>{{ form.cantidad_febrero }}</td><td>{{ form.cantidad_marzo }}</td><td>{{ form.cantidad_abril }}</td><td>{{ form.cantidad_mayo }}</td><td>{{ form.cantidad_junio }}</td><td>{{ form.cantidad_julio }}</td><td>{{ form.cantidad_agosto }}</td><td>{{ form.cantidad_septiembre }}</td><td>{{ form.cantidad_octubre }}</td><td>{{ form.cantidad_noviembre }}</td><td>{{ form.cantidad_diciembre }}</td><td>{{ form.precio_estimado }}{% if form.instance.costo_proyectado_total != None and form.instance.precio_estimado == 0 %}<span class="ayuda">Sin referencia unitaria; se conserva el total informado.</span>{% endif %}</td><td>{{ form.costo_proyectado_total }}</td><td><span data-total>0</span></td><td><span data-costo>0,00</span></td><td>{{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Quitar</label></td></tr>{% endwith %}</template>
     <div class="acciones-formulario"><button type="button" class="boton boton--secundario" id="agregar-linea">Agregar otra línea</button></div>
     {% for campo in motivo_form %}{% include "configuracion/_campo.html" %}{% endfor %}
     <div class="acciones-formulario"><button type="submit" class="boton" name="accion" value="guardar">Guardar borrador</button><button type="submit" class="boton" name="accion" value="enviar">Enviar</button></div>
@@ -65,13 +65,13 @@
   <div class="tabla-contenedor">
     <table class="tabla tabla-lineas">
       <caption class="visualmente-oculto">Líneas de la proyección</caption>
-      <thead><tr><th scope="col">Producto o servicio</th><th scope="col">Dependencia</th><th scope="col">Unidad</th><th scope="col">Enero</th><th scope="col">Febrero</th><th scope="col">Marzo</th><th scope="col">Abril</th><th scope="col">Mayo</th><th scope="col">Junio</th><th scope="col">Julio</th><th scope="col">Agosto</th><th scope="col">Septiembre</th><th scope="col">Octubre</th><th scope="col">Noviembre</th><th scope="col">Diciembre</th><th scope="col" class="numero">Precio estimado</th><th scope="col" class="numero">Total anual</th><th scope="col" class="numero">Costo anual</th><th scope="col" class="numero">Cantidad autorizada</th></tr></thead>
+      <thead><tr><th scope="col">Producto o servicio</th><th scope="col">Dependencia</th><th scope="col">Unidad</th><th scope="col">Enero</th><th scope="col">Febrero</th><th scope="col">Marzo</th><th scope="col">Abril</th><th scope="col">Mayo</th><th scope="col">Junio</th><th scope="col">Julio</th><th scope="col">Agosto</th><th scope="col">Septiembre</th><th scope="col">Octubre</th><th scope="col">Noviembre</th><th scope="col">Diciembre</th><th scope="col" class="numero">Precio unitario estimado</th><th scope="col" class="numero">Total anual informado</th><th scope="col" class="numero">Total anual</th><th scope="col" class="numero">Costo anual</th><th scope="col" class="numero">Cantidad autorizada</th></tr></thead>
       <tbody>
       {% for linea in lineas_lectura %}
-        {% if proyeccion.estado == "aprobada" %}<tr><td>{{ linea.producto_servicio }}{% if linea.campos_ajustados %} <span class="estado estado--aviso">Ajustada</span>{% endif %}</td><td>{{ linea.dependencia|default:"—" }}</td><td>{{ linea.unidad }}</td><td>{{ linea.vigente.cantidad_enero }}</td><td>{{ linea.vigente.cantidad_febrero }}</td><td>{{ linea.vigente.cantidad_marzo }}</td><td>{{ linea.vigente.cantidad_abril }}</td><td>{{ linea.vigente.cantidad_mayo }}</td><td>{{ linea.vigente.cantidad_junio }}</td><td>{{ linea.vigente.cantidad_julio }}</td><td>{{ linea.vigente.cantidad_agosto }}</td><td>{{ linea.vigente.cantidad_septiembre }}</td><td>{{ linea.vigente.cantidad_octubre }}</td><td>{{ linea.vigente.cantidad_noviembre }}</td><td>{{ linea.vigente.cantidad_diciembre }}</td><td class="numero">{{ linea.vigente.precio_estimado|floatformat:"2g" }}</td><td class="numero">{{ linea.total_vigente }}</td><td class="numero">{{ linea.costo_vigente|floatformat:"2g" }}</td><td class="numero">{{ linea.vigente.cantidad_autorizada|default_if_none:"—" }}</td></tr>
-        {% else %}<tr><td>{{ linea.producto_servicio }}</td><td>{{ linea.dependencia|default:"—" }}</td><td>{{ linea.unidad }}</td><td>{{ linea.cantidad_enero }}</td><td>{{ linea.cantidad_febrero }}</td><td>{{ linea.cantidad_marzo }}</td><td>{{ linea.cantidad_abril }}</td><td>{{ linea.cantidad_mayo }}</td><td>{{ linea.cantidad_junio }}</td><td>{{ linea.cantidad_julio }}</td><td>{{ linea.cantidad_agosto }}</td><td>{{ linea.cantidad_septiembre }}</td><td>{{ linea.cantidad_octubre }}</td><td>{{ linea.cantidad_noviembre }}</td><td>{{ linea.cantidad_diciembre }}</td><td class="numero">{{ linea.precio_estimado|floatformat:"2g" }}</td><td class="numero">{{ linea.total_anual }}</td><td class="numero">{{ linea.costo_anual|floatformat:"2g" }}</td><td class="numero">—</td></tr>{% endif %}
+        {% if proyeccion.estado == "aprobada" %}<tr><td>{{ linea.producto_servicio }}{% if linea.campos_ajustados %} <span class="estado estado--aviso">Ajustada</span>{% endif %}</td><td>{{ linea.dependencia|default:"—" }}</td><td>{{ linea.unidad }}</td><td>{{ linea.vigente.cantidad_enero }}</td><td>{{ linea.vigente.cantidad_febrero }}</td><td>{{ linea.vigente.cantidad_marzo }}</td><td>{{ linea.vigente.cantidad_abril }}</td><td>{{ linea.vigente.cantidad_mayo }}</td><td>{{ linea.vigente.cantidad_junio }}</td><td>{{ linea.vigente.cantidad_julio }}</td><td>{{ linea.vigente.cantidad_agosto }}</td><td>{{ linea.vigente.cantidad_septiembre }}</td><td>{{ linea.vigente.cantidad_octubre }}</td><td>{{ linea.vigente.cantidad_noviembre }}</td><td>{{ linea.vigente.cantidad_diciembre }}</td><td class="numero">{% if linea.vigente.costo_proyectado_total != None and linea.vigente.precio_estimado == 0 %}—{% else %}{{ linea.vigente.precio_estimado|floatformat:"2g" }}{% endif %}</td><td class="numero">{{ linea.vigente.costo_proyectado_total|floatformat:"2g"|default:"—" }}</td><td class="numero">{{ linea.total_vigente }}</td><td class="numero">{{ linea.costo_vigente|floatformat:"2g" }}</td><td class="numero">{{ linea.vigente.cantidad_autorizada|default_if_none:"—" }}</td></tr>
+        {% else %}<tr><td>{{ linea.producto_servicio }}</td><td>{{ linea.dependencia|default:"—" }}</td><td>{{ linea.unidad }}</td><td>{{ linea.cantidad_enero }}</td><td>{{ linea.cantidad_febrero }}</td><td>{{ linea.cantidad_marzo }}</td><td>{{ linea.cantidad_abril }}</td><td>{{ linea.cantidad_mayo }}</td><td>{{ linea.cantidad_junio }}</td><td>{{ linea.cantidad_julio }}</td><td>{{ linea.cantidad_agosto }}</td><td>{{ linea.cantidad_septiembre }}</td><td>{{ linea.cantidad_octubre }}</td><td>{{ linea.cantidad_noviembre }}</td><td>{{ linea.cantidad_diciembre }}</td><td class="numero">{% if linea.costo_proyectado_total != None and linea.precio_estimado == 0 %}—{% else %}{{ linea.precio_estimado|floatformat:"2g" }}{% endif %}</td><td class="numero">{{ linea.costo_proyectado_total|floatformat:"2g"|default:"—" }}</td><td class="numero">{{ linea.total_anual }}</td><td class="numero">{{ linea.costo_anual|floatformat:"2g" }}</td><td class="numero">—</td></tr>{% endif %}
       {% empty %}
-        <tr><td colspan="19">No hay líneas registradas.</td></tr>
+        <tr><td colspan="20">No hay líneas registradas.</td></tr>
       {% endfor %}
       </tbody>
     </table>
@@ -92,4 +92,4 @@
 <datalist id="productos-sugeridos">{% for producto in productos_sugeridos %}<option value="{{ producto.nombre }}">{% endfor %}</datalist>
 {% endblock %}
 
-{% block scripts %}<script src="{% static 'js/proyecciones.js' %}" defer></script>{% endblock %}
+{% block scripts %}<script src="{% static 'js/proyecciones.js' %}?v=20261113-total" defer></script>{% endblock %}

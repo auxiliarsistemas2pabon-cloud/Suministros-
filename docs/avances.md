@@ -1,5 +1,36 @@
 # Avances del proyecto
 
+## 2026-11-13 · Ejemplo completo desde el consolidado FR-GDS-11
+
+- Lector separado del formato institucional, con hojas por área, encabezado en
+  fila 6, cantidades D:O, total P y presupuesto anual Q. Conserva huella, celdas,
+  fórmulas reconocidas y observaciones; no ejecuta fórmulas ni modifica el origen.
+- Usuario confirmó Q como valor proyectado total, unidad provisional y x=1.
+  Junio/septiembre de Sanisorb siguen pendientes. Se cargaron 128 líneas y se
+  conservó esa fila de 70.000.000,00 únicamente en la revisión de origen.
+- Presupuesto de origen: 3.354.158.225,58; cargado: 3.284.158.225,58. Se señalan
+  las diferencias con los totales almacenados de las hojas. Reforestación conserva
+  sus doce ceros y su presupuesto independiente de 6.000.000,00.
+- Campo opcional de costo anual informado con precedencia exacta sobre la
+  multiplicación por precio de referencia. Se conserva en edición, revisión,
+  consolidado, ajustes y exportación. El importador tradicional mantiene 16 columnas
+  y la exportación del consolidado conserva 23 columnas.
+- Entorno `config.settings_demo`, base, PDF, cuentas y cookies propios. Comando
+  `preparar_ejemplo` protegido contra ejecución en la base principal y duplicados.
+- Recorrido mediante servicios reales: proveedores/documentos/FR14, necesidad,
+  elegibles, cotización, dos ofertas, decisión, contrato/póliza, orden de cuatro
+  AIO por 9.600.000,00, aprobación por otra cuenta, PDF y evidencia sin envío real,
+  recepción parcial/devolución/final y seguimiento cerrado.
+- Guía navegable en `/ejemplo/`, con datos de origen y permisos administrativos.
+  Se revisó visualmente el tablero, los enlaces del recorrido y la orden cerrada.
+- 906 pruebas SQLite correctas con seis omisiones de PostgreSQL; 906 pruebas en
+  PostgreSQL 18 aislado correctas, sin omisiones. Clúster temporal detenido.
+- Migración aditiva 0006 aplicada con respaldo previo. Comparación de 81 tablas:
+  datos de negocio, parámetros y credenciales principales conservados.
+- Quince pantallas del recorrido verificadas, conciliación exacta de presupuestos
+  y prueba de acceso al servidor demo. No se modificó el Excel original ni se
+  hicieron commits, publicaciones o comunicaciones a terceros.
+
 ## 2026-11-13 · Mejora visual del inicio de sesión
 
 - Presentación en dos columnas con marca, resumen de procesos y formulario

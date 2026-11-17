@@ -67,6 +67,7 @@ CAMPOS_AUDITADOS_LINEA = [
     "cantidad_noviembre",
     "cantidad_diciembre",
     "precio_estimado",
+    "costo_proyectado_total",
     "cantidad_autorizada",
 ]
 
@@ -531,13 +532,14 @@ CAMPOS_CORREGIBLES_LINEA = [
     "unidad",
     *CAMPOS_CANTIDADES_MENSUALES,
     "precio_estimado",
+    "costo_proyectado_total",
 ]
 
 _DECIMAL_COSTO = DecimalField(max_digits=30, decimal_places=2)
 
 
 def _expresion_costo(prefijo=""):
-    """Costo de una línea en la base: (suma de los 12 meses) × precio, sin pasar por float.
+    """Usa el total informado o, si está vacío, meses por precio sin pasar por float.
 
     El primer término se convierte a bigint para que la suma de los meses no desborde un int.
     """
@@ -545,7 +547,8 @@ def _expresion_costo(prefijo=""):
     cantidades = Cast(F(f"{prefijo}{primero}"), BigIntegerField())
     for campo in resto:
         cantidades = cantidades + F(f"{prefijo}{campo}")
-    return ExpressionWrapper(cantidades * F(f"{prefijo}precio_estimado"), output_field=_DECIMAL_COSTO)
+    calculado = ExpressionWrapper(cantidades * F(f"{prefijo}precio_estimado"), output_field=_DECIMAL_COSTO)
+    return Coalesce(F(f"{prefijo}costo_proyectado_total"), calculado, output_field=_DECIMAL_COSTO)
 
 
 def _exigir_administracion(actor):
@@ -842,7 +845,8 @@ def anotar_vigentes(lineas):
         vigente = valores_vigentes(linea)
         linea.vigente = vigente
         linea.total_vigente = sum(vigente[campo] or 0 for campo in CAMPOS_CANTIDADES_MENSUALES)
-        linea.costo_vigente = Decimal(linea.total_vigente) * (vigente["precio_estimado"] or Decimal("0"))
+        total_informado = vigente["costo_proyectado_total"]
+        linea.costo_vigente = total_informado if total_informado is not None else Decimal(linea.total_vigente) * (vigente["precio_estimado"] or Decimal("0"))
         linea.campos_ajustados = {campo for campo in CAMPOS_AJUSTABLES if vigente[campo] != getattr(linea, campo)}
     return lineas
 

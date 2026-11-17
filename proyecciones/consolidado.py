@@ -6,7 +6,7 @@ Todo se calcula con agregaciones de PostgreSQL y `Decimal`:
 - Cantidad autorizada: la registrada al aprobar.
 - Ajustado (vigente): el valor del último ajuste de cada campo o, si no tiene ajustes, el de
   la línea. Da la cantidad ajustada (autorizada vigente), el total anual ajustado y el costo
-  ajustado (meses vigentes × precio vigente).
+  ajustado (total informado vigente o meses vigentes × precio vigente).
 
 `consulta` es siempre un QuerySet de ProyeccionArea ya filtrado (ver servicios.filtrar_proyecciones).
 """
@@ -60,7 +60,7 @@ class TextoJson(Func):
 
 def _vigente(campo):
     """Valor vigente de un campo de la línea: último ajuste de ese campo o el valor de la línea."""
-    tipo = DECIMAL_PRECIO if campo == "precio_estimado" else BigIntegerField()
+    tipo = DECIMAL_COSTO if campo == "costo_proyectado_total" else DECIMAL_PRECIO if campo == "precio_estimado" else BigIntegerField()
     ultimo = (
         Ajuste.objects.filter(linea=OuterRef("pk"), campo=campo)
         .order_by("-fecha", "-id")
@@ -84,8 +84,8 @@ def lineas_con_vigentes(consulta):
     return lineas.annotate(**{f"v_{campo}": _vigente(campo) for campo in CAMPOS_AJUSTABLES}).annotate(
         v_total=_suma_meses("v_"),
         total=_suma_meses(),
-        costo=ExpressionWrapper(_suma_meses() * F("precio_estimado"), output_field=DECIMAL_COSTO),
-        v_costo=ExpressionWrapper(_suma_meses("v_") * F("v_precio_estimado"), output_field=DECIMAL_COSTO),
+        costo=Coalesce(F("costo_proyectado_total"), ExpressionWrapper(_suma_meses() * F("precio_estimado"), output_field=DECIMAL_COSTO), output_field=DECIMAL_COSTO),
+        v_costo=Coalesce(F("v_costo_proyectado_total"), ExpressionWrapper(_suma_meses("v_") * F("v_precio_estimado"), output_field=DECIMAL_COSTO), output_field=DECIMAL_COSTO),
     )
 
 

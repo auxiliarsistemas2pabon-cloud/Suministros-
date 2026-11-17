@@ -1,4 +1,13 @@
 /* Estructura de la aplicación, navegación y adaptaciones por tamaño de pantalla. */
+.aviso-demostracion {
+  padding: 10px 20px;
+  border-bottom: 1px solid #c9d8f0;
+  background: #e9f0fc;
+  color: var(--azul);
+  text-align: center;
+  font-size: 13px;
+}
+.aviso-demostracion a { margin-left: 10px; font-weight: 600; }
 .app-layout {
   min-height: 100vh;
 }

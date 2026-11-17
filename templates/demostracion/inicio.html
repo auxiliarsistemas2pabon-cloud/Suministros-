@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block titulo %}Recorrido del ejemplo{% endblock %}
+{% block contenido %}
+<h1>Ejemplo desde su consolidado de compras</h1>
+<p>Periodo {{ anio }}. El punto de partida es <strong>{{ archivo_nombre }}</strong>. Los proveedores, ofertas, aprobaciones y movimientos de compra de este recorrido son ficticios y están en una base separada.</p>
+<section class="tarjeta">
+  <h2>Qué se tomó del archivo</h2>
+  <div class="indicadores">
+    <div><strong>{{ areas|length }}</strong><p>Áreas de origen</p></div>
+    <div><strong>{{ lineas_importables }}</strong><p>Líneas cargadas</p></div>
+    <div><strong>{{ lineas_pendientes }}</strong><p>Líneas con cantidades pendientes</p></div>
+    <div><strong>$ {{ costo_proyectado_total|floatformat:'2g' }}</strong><p>Valor proyectado en el archivo</p></div>
+  </div>
+  <p>Valor cargado en proyecciones: <strong>$ {{ costo_cargado|floatformat:'2g' }}</strong>. Valor de las líneas pendientes: <strong>$ {{ costo_lineas_pendientes|floatformat:'2g' }}</strong>.</p>
+  <p>Se conserva el valor total anual de cada fila. El precio por unidad es únicamente una estimación de referencia; el valor total del archivo prevalece.</p>
+  <p>Interpretaciones confirmadas: unidad de medida provisional para el ejemplo y «x» equivalente a una unidad. Las cantidades vacías de junio y septiembre de Sanisorb Active WEST continúan pendientes; esa línea no se cargó como si fueran ceros.</p>
+</section>
+<h2>Recorra la aplicación en este orden</h2>
+<ol class="lista-simple">
+  <li><strong>Proyección y revisión.</strong> Consulte las áreas del archivo en los enlaces de abajo. {% if operacion %}Ambiental y Transfusional quedan en borrador. Sistemas pasa por envío y aprobación ficticios para continuar la compra del ejemplo.{% else %}Las proyecciones se cargan en borrador.{% endif %}</li>
+  {% if operacion %}
+  <li><strong>Selección del proveedor.</strong> Revise los proveedores de demostración, sus documentos, la evaluación y la lista de elegibles.</li>
+  <li><strong>Cotización y decisión.</strong> Compare dos ofertas ficticias para cuatro equipos AIO. La decisión conserva la oferta elegida y su aprobación.</li>
+  <li><strong>Contrato y orden.</strong> Consulte el contrato, su póliza y la orden aprobada por otra persona administradora. Abra el PDF generado por la aplicación.</li>
+  <li><strong>Recepción y cierre.</strong> El ejemplo registra una recepción parcial, una devolución y la entrega restante. El seguimiento conserva el historial y queda cerrado con cuatro equipos recibidos netos.</li>
+  {% endif %}
+</ol>
+{% if operacion %}<p>Orden <strong>{{ operacion.orden_consecutivo }}</strong>: <strong>{{ operacion.cantidades.compra }} equipos AIO</strong> por <strong>$ {{ operacion.total_orden|floatformat:'2g' }}</strong>, con impuestos de ejemplo del 0 %. Recepción neta final: <strong>{{ operacion.cantidades.recibidas_netas }}</strong>; devolución registrada: <strong>{{ operacion.cantidades.devueltas }}</strong>.</p>{% endif %}
+{% if operacion.pasos %}
+<div class="accesos">{% for etapa in operacion.pasos %}<a class="acceso__enlace" href="{{ etapa.url }}"><strong>{{ etapa.titulo }}</strong></a>{% endfor %}</div>
+{% endif %}
+<p><a class="boton boton--secundario" href="{{ url_consolidado }}">Ver consolidado en la aplicación</a> <a class="boton boton--secundario" href="{% url 'compras:ordenes' %}">Ver órdenes</a> <a class="boton boton--secundario" href="{% url 'seguimientos:lista' %}">Ver seguimientos</a> <a class="boton boton--secundario" href="{% url 'proveedores:bandeja' %}">Revisar documentos del portal</a></p>
+<h2>Compare cada área con el archivo</h2>
+{% for area in areas %}
+<section class="tarjeta">
+  <div class="encabezado-seccion"><h3>{{ area.nombre }}</h3><a href="{{ area.url_revision }}">Abrir proyección · {{ area.estado }}</a></div>
+  <p>Valor de origen: <strong>$ {{ area.costo_proyectado_total|floatformat:'2g' }}</strong> · Cargado: <strong>$ {{ area.costo_cargado|floatformat:'2g' }}</strong> · Pendiente: <strong>$ {{ area.costo_lineas_pendientes|floatformat:'2g' }}</strong>.</p>
+  {% if area.observaciones %}<div class="mensaje mensaje--warning"><strong>Revise el total del Excel</strong>{% for nota in area.observaciones %}<p>{{ nota }}</p>{% endfor %}<p>Se conserva la suma de todos los costos de las filas, incluidos los importes escritos como texto. El archivo original no se modificó.</p></div>{% endif %}
+  <details><summary>Ver las {{ area.lineas|length }} líneas y su correspondencia con Excel</summary>
+    <div class="tabla-contenedor"><table class="tabla">
+      <thead><tr><th>Fila Excel</th><th>Producto o servicio</th><th>Cantidades de enero a diciembre</th><th>Total anual</th><th>Valor anual de origen</th><th>Resultado de la carga</th></tr></thead>
+      <tbody>{% for linea in area.lineas %}<tr>
+        <td>{{ linea.fila }}</td><td>{{ linea.producto_servicio }}</td>
+        <td>{% for cantidad in linea.meses %}{{ cantidad|default_if_none:'Pendiente' }}{% if not forloop.last %} · {% endif %}{% endfor %}</td>
+        <td>{{ linea.cantidad_total|default_if_none:'Pendiente' }}</td>
+        <td>$ {{ linea.costo_proyectado_total|floatformat:'2g' }}</td>
+        <td>{% if linea.importable %}Cargada{% else %}<strong class="texto-error">Por completar</strong>{% endif %}{% for error in linea.errores %}<p>{{ error.celda }}: {{ error.error }}</p>{% endfor %}{% for nota in linea.observaciones %}<p class="texto-suave">{{ nota }}</p>{% endfor %}</td>
+      </tr>{% endfor %}</tbody>
+    </table></div>
+  </details>
+</section>
+{% endfor %}
+<section class="tarjeta"><h2>Cuentas para practicar los roles</h2>
+<p>Puede cambiar de cuenta desde «Su cuenta» y «Cerrar sesión». La clave temporal se entrega junto con este ejemplo; las cuentas de la aplicación principal mantienen sus propias credenciales.</p>
+<div class="tabla-contenedor"><table class="tabla"><thead><tr><th>Persona del ejemplo</th><th>Correo de ingreso</th><th>Rol</th></tr></thead><tbody>{% for cuenta in accesos %}<tr><td>{{ cuenta.nombre }}</td><td>{{ cuenta.correo }}</td><td>{{ cuenta.rol }}</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}

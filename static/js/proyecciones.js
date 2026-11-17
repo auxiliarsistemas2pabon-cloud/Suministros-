@@ -8,6 +8,15 @@
     return Number.isFinite(resultado) && resultado >= 0 ? resultado : 0;
   }
 
+  function totalInformado(valor) {
+    // El total del archivo no pasa por Number: conserva sus dos decimales exactos.
+    var texto = String(valor).trim().replace(",", ".");
+    if (!/^\d+(?:\.\d{0,2})?$/.test(texto)) return "Pendiente de validar";
+    var partes = texto.split(".");
+    var entero = partes[0].replace(/^0+(?=\d)/, "");
+    return entero.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "," + ((partes[1] || "") + "00").slice(0, 2);
+  }
+
   function calcular(fila) {
     var total = 0;
     fila.querySelectorAll("[data-cantidad]").forEach(function (campo) {
@@ -15,15 +24,17 @@
     });
     var precioCampo = fila.querySelector("[data-precio]");
     var precio = numero(precioCampo ? precioCampo.value : 0);
+    var informadoCampo = fila.querySelector("[data-costo-informado]");
+    var informado = informadoCampo && informadoCampo.value.trim() !== "";
     var totalCampo = fila.querySelector("[data-total]");
     var costoCampo = fila.querySelector("[data-costo]");
     if (totalCampo) totalCampo.textContent = String(total);
-    if (costoCampo) costoCampo.textContent = (total * precio).toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (costoCampo) costoCampo.textContent = informado ? totalInformado(informadoCampo.value) : (total * precio).toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function activarFila(fila) {
     if (!fila) return;
-    fila.querySelectorAll("[data-cantidad], [data-precio]").forEach(function (campo) {
+    fila.querySelectorAll("[data-cantidad], [data-precio], [data-costo-informado]").forEach(function (campo) {
       campo.addEventListener("input", function () { calcular(fila); });
       campo.addEventListener("change", function () { calcular(fila); });
     });

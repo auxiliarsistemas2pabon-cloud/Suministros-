@@ -91,7 +91,7 @@ def importar_excel(request, pk):
             total = sum(datos[c] for c in servicios.CAMPOS_CANTIDADES_MENSUALES)
             filas.append({**fila, "unidad": unidades.get(datos["unidad_id"], "Unidad inactiva o eliminada"),
                           "cantidades": [datos[c] for c in servicios.CAMPOS_CANTIDADES_MENSUALES],
-                          "total": total, "costo": total * Decimal(datos["precio_estimado"])})
+                          "total": total, "costo": Decimal(datos["costo_proyectado_total"]) if datos.get("costo_proyectado_total") is not None else total * Decimal(datos["precio_estimado"])})
     return render(request, "proyecciones/importar.html", {
         "proyeccion": proyeccion, "volver": volver, "formulario": formulario,
         "confirmar": confirmar, "previa": previa, "filas": filas,

@@ -154,12 +154,12 @@ def libro_consolidado(consulta, descripcion_filtro=""):
                 str(linea.unidad),
                 *[getattr(linea, campo) for campo in CAMPOS_CANTIDADES_MENSUALES],
                 linea.total,
-                linea.precio_estimado,
+                "No informado" if linea.costo_proyectado_total is not None and linea.precio_estimado == 0 else linea.precio_estimado,
                 linea.costo,
                 linea.cantidad_autorizada,
                 linea.v_cantidad_autorizada,
                 linea.v_total,
-                linea.v_precio_estimado,
+                "No informado" if linea.v_costo_proyectado_total is not None and linea.v_precio_estimado == 0 else linea.v_precio_estimado,
                 linea.v_costo,
             ]
             _fila(hoja, numero, valores, COLUMNAS_AREA, MONEDA_AREA)
